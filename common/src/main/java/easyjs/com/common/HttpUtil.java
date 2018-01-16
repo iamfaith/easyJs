@@ -12,9 +12,9 @@ import okhttp3.Response;
 
 public class HttpUtil {
 
-
+    private OkHttpClient client;
     private HttpUtil() {
-
+        client = new OkHttpClient();
     }
 
     static private class Holder {
@@ -25,8 +25,7 @@ public class HttpUtil {
         return Holder.instance;
     }
 
-    public static String postFile(String url, File file) {
-        OkHttpClient client = new OkHttpClient();
+    public String postFile(String url, File file) {
 //        String url = "http://api.happyocr.com/send";
 //        File file = new File("./a.jpeg");
         try {

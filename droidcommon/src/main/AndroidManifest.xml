@@ -3,6 +3,8 @@
     package="easyjs.com.droidcommon">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application>
         <activity android:name="easyjs.com.easyjs.droidcommon.screencapture.ScreenCaptureRequestActivity"></activity>
     </application>
