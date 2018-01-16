@@ -83,34 +83,37 @@ public class ScreenCapture {
 
             @Override
             public void onImageAvailable(ImageReader reader) {
+                Log.i("onImageAvailable", "in OnImageAvailable");
                 if (hasCapture.get() == false) {
                     Image image = reader.acquireLatestImage();
-                    callback.finishCapture(image);
+                    if (image != null)
+                        callback.finishCapture(image);
                 }
             }
-        }, null);
+        }, new Handler());
     }
 
     public void capture(final String path, final Define.IEventCallBack callBack) {
         capture(new ICaptureResult() {
             @Override
             public void finishCapture(Image image) {
+                hasCapture.compareAndSet(false, true);
                 Log.d("capture", "catch image--" + image);
-                if (image != null) {
-                    try (FileOutputStream fos = new FileOutputStream(path)) {
-                        Bitmap bitmap = toBitMap(image);
-                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                        callBack.afterExecute(Define.EventCode.SUCCESS, Define.CallBackMsg.buildMsg("capture success"));
-                        hasCapture.compareAndSet(false, true);
-                    } catch (Exception e) {
-                        callBack.afterExecute(Define.EventCode.FAIL, Define.CallBackMsg.buildMsg("capture fail", e));
-                    } finally {
-                        if (image != null)
-                            image.close();
-                    }
-                } else {
-                    callBack.afterExecute(Define.EventCode.FAIL, Define.CallBackMsg.buildMsg("capture fail"));
+                Bitmap bitmap = null;
+                try (FileOutputStream fos = new FileOutputStream(path)) {
+                    bitmap = toBitMap(image);
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                    callBack.afterExecute(Define.EventCode.SUCCESS, Define.CallBackMsg.buildMsg("capture success"));
+                } catch (Exception e) {
+                    Log.e("capture", "catch image fail", e);
+                    callBack.afterExecute(Define.EventCode.FAIL, Define.CallBackMsg.buildMsg("capture fail", e));
+                } finally {
+                    if (image != null)
+                        image.close();
+                    if (bitmap != null)
+                        bitmap.recycle();
                 }
+
             }
         });
 

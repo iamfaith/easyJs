@@ -1,10 +1,12 @@
 package easyjs.com.easyjs;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -33,12 +35,24 @@ public class EasyJsActivity extends Activity implements View.OnClickListener {
         btn1.setOnClickListener(this);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.button:
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, Define.RequestCode.WRITE_EXTERNAL_STORAGE);
                 Toast.makeText(EasyJsActivity.this, "btn1", Toast.LENGTH_SHORT).show();
+                break;
+            default:
+                break;
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case Define.RequestCode.WRITE_EXTERNAL_STORAGE:
                 ScreenMetrics.initIfNeeded(this);
                 ScreenCaptureRequestActivity.request(getApplicationContext(), new ScreenCapture.IRequestResult() {
                     @Override
@@ -57,8 +71,6 @@ public class EasyJsActivity extends Activity implements View.OnClickListener {
                         }
                     }
                 });
-                break;
-            default:
                 break;
         }
     }

@@ -6,6 +6,10 @@ package easyjs.com.easyjs.droidcommon;
 
 public class Define {
 
+    public static class RequestCode {
+        public static final int WRITE_EXTERNAL_STORAGE = 1;
+    }
+
     public enum EventCode {
         SUCCESS("SUCCESS"), FAIL("FAIL");
         private String code;
