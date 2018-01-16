@@ -15,10 +15,13 @@ import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.util.Log;
 
 import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import easyjs.com.easyjs.droidcommon.Define;
 import easyjs.com.easyjs.droidcommon.util.ScreenMetrics;
 
 /**
@@ -26,14 +29,19 @@ import easyjs.com.easyjs.droidcommon.util.ScreenMetrics;
  */
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 public class ScreenCapture {
-    enum ResultCode {
-        OK,CANCEL
+    public enum ResultCode {
+        OK, CANCEL
     }
 
-    interface RequestResult {
+    public interface IRequestResult {
 
         void onRequestResult(ResultCode result, Intent data);
     }
+
+    public interface ICaptureResult {
+        void finishCapture(Image image);
+    }
+
     private final int mScreenWidth;
     private final int mScreenHeight;
     private final int mScreenDensity;
@@ -41,6 +49,7 @@ public class ScreenCapture {
     private ImageReader mImageReader;
     private MediaProjection mMediaProjection;
     private VirtualDisplay mVirtualDisplay;
+    private AtomicBoolean hasCapture = new AtomicBoolean(false);
 
     public ScreenCapture(Context context, Intent data, int screenWidth, int screenHeight, int screenDensity, Handler handler) {
         mScreenWidth = screenWidth;
@@ -69,27 +78,45 @@ public class ScreenCapture {
                 mImageReader.getSurface(), null, null);
     }
 
-    @Nullable
-    public Bitmap capture() {
-        Image image = mImageReader.acquireLatestImage();
-        return toBitMap(image);
-    }
+    public void capture(final ICaptureResult callback) {
+        mImageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
 
-    public void capture(String path) {
-        Bitmap bitmap = capture();
-        if (bitmap != null) {
-            try (FileOutputStream fos = new FileOutputStream(path)) {
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-            } catch (Exception e) {
-                throw new RuntimeException(String.format("save %s fail", path));
+            @Override
+            public void onImageAvailable(ImageReader reader) {
+                if (hasCapture.get() == false) {
+                    Image image = reader.acquireLatestImage();
+                    callback.finishCapture(image);
+                }
             }
-        }
+        }, null);
     }
 
-    @Nullable
+    public void capture(final String path, final Define.IEventCallBack callBack) {
+        capture(new ICaptureResult() {
+            @Override
+            public void finishCapture(Image image) {
+                Log.d("capture", "catch image--" + image);
+                if (image != null) {
+                    try (FileOutputStream fos = new FileOutputStream(path)) {
+                        Bitmap bitmap = toBitMap(image);
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                        callBack.afterExecute(Define.EventCode.SUCCESS, Define.CallBackMsg.buildMsg("capture success"));
+                        hasCapture.compareAndSet(false, true);
+                    } catch (Exception e) {
+                        callBack.afterExecute(Define.EventCode.FAIL, Define.CallBackMsg.buildMsg("capture fail", e));
+                    } finally {
+                        if (image != null)
+                            image.close();
+                    }
+                } else {
+                    callBack.afterExecute(Define.EventCode.FAIL, Define.CallBackMsg.buildMsg("capture fail"));
+                }
+            }
+        });
+
+    }
+
     private Bitmap toBitMap(Image image) {
-        if (image == null)
-            return null;
         Image.Plane plane = image.getPlanes()[0];
         ByteBuffer buffer = plane.getBuffer();
         buffer.position(0);

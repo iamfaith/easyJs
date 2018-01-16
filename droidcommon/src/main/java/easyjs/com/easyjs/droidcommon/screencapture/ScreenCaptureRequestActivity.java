@@ -11,13 +11,13 @@ import android.support.annotation.RequiresApi;
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class ScreenCaptureRequestActivity extends Activity {
 
-    private static ScreenCapture.RequestResult callback;
+    private static ScreenCapture.IRequestResult callback;
     private MediaProjectionManager mMediaProjectionManager;
     private static final int REQUEST_MEDIA_PROJECTION = 1;
 
 
-    public static void request(Context context, ScreenCapture.RequestResult requester) {
-        if (requester != null) {
+    public static void request(Context context, ScreenCapture.IRequestResult requester) {
+        if (requester == null) {
             return;
         }
         callback = requester;
