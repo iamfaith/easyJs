@@ -100,4 +100,27 @@ public class ScreenCapture {
         return bitmap;
     }
 
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void release() {
+        if (mMediaProjection != null) {
+            mMediaProjection.stop();
+        }
+        if (mVirtualDisplay != null) {
+            mVirtualDisplay.release();
+        }
+        if (mImageReader != null) {
+            mImageReader.close();
+        }
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        try {
+            release();
+        } finally {
+            super.finalize();
+        }
+    }
+
 }
