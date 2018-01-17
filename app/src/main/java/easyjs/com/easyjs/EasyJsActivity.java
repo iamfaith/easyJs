@@ -13,6 +13,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.stardust.enhancedfloaty.FloatyService;
+import com.stardust.enhancedfloaty.ResizableFloatyWindow;
+
 import java.io.File;
 
 import easyjs.com.common.HttpUtil;
@@ -25,6 +28,7 @@ import easyjs.com.easyjs.droidcommon.util.ScreenMetrics;
 public class EasyJsActivity extends Activity implements View.OnClickListener {
 
     private Button btn1;
+    private Button btn2;
     private static int REQUEST_CODE;
 
     @Override
@@ -39,6 +43,10 @@ public class EasyJsActivity extends Activity implements View.OnClickListener {
         btn1 = (Button) findViewById(R.id.button);
         //按钮绑定点击事件的监听器
         btn1.setOnClickListener(this);
+
+        btn2 = (Button) findViewById(R.id.button2);
+        //按钮绑定点击事件的监听器
+        btn2.setOnClickListener(this);
     }
 
     @Override
@@ -49,6 +57,9 @@ public class EasyJsActivity extends Activity implements View.OnClickListener {
                 REQUEST_CODE = Define.RequestCode.getRequestCode(requestPermission);
                 ActivityCompat.requestPermissions(this, requestPermission, REQUEST_CODE);
                 Toast.makeText(EasyJsActivity.this, "btn1", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.button2:
+//                FloatyService.addWindow(new ResizableFloatyWindow(new SampleFloaty()));
                 break;
             default:
                 break;
