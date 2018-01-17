@@ -27,6 +27,7 @@ import easyjs.com.easyjs.droidcommon.util.ScreenMetrics;
 /**
  * Created by faith on 2018/1/16.
  */
+@Deprecated
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 public class ScreenCapture {
     public enum ResultCode {
@@ -45,7 +46,6 @@ public class ScreenCapture {
     private final int mScreenWidth;
     private final int mScreenHeight;
     private final int mScreenDensity;
-    private Handler mHandler;
     private ImageReader mImageReader;
     private MediaProjection mMediaProjection;
     private VirtualDisplay mVirtualDisplay;
@@ -55,10 +55,8 @@ public class ScreenCapture {
         mScreenWidth = screenWidth;
         mScreenHeight = screenHeight;
         mScreenDensity = screenDensity;
-        mHandler = handler;
         MediaProjectionManager manager = (MediaProjectionManager) context.getSystemService(Context.MEDIA_PROJECTION_SERVICE);
         initVirtualDisplay(manager, data, screenWidth, screenHeight, screenDensity);
-        mHandler = handler;
 //        startAcquireImageLoop();
     }
 

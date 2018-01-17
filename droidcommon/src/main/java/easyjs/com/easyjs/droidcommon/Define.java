@@ -72,4 +72,8 @@ public class Define {
     public interface IEventCallBack {
         void afterExecute(EventCode code, CallBackMsg callBackMsg);
     }
+
+    public interface IEventListener {
+        void handleEvent();
+    }
 }

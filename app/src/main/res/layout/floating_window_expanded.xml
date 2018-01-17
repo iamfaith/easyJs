@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="12dp"
+        android:orientation="vertical">
+
+        <android.support.design.widget.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/floating_window_bg_top"
+            android:theme="@style/AppTheme.AppBarOverlay">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                app:popupTheme="@style/AppTheme.PopupOverlay"
+                app:title="@string/app_name">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="right">
+
+                    <ImageView
+                        android:id="@+id/minimize"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="?selectableItemBackgroundBorderless"
+                        android:paddingBottom="8dp"
+                        android:paddingLeft="8dp"
+                        android:paddingRight="8dp"
+                        android:paddingTop="24dp"
+                        android:scaleType="center"
+                        android:src="@drawable/ic_remove_white_24dp" />
+
+                    <ImageView
+                        android:id="@+id/move_or_resize"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="?selectableItemBackgroundBorderless"
+                        android:padding="8dp"
+                        android:scaleType="fitXY"
+                        android:src="@drawable/ic_settings_ethernet_white_24dp"
+                        android:tint="@android:color/white" />
+
+                    <ImageView
+                        android:id="@+id/close"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="?selectableItemBackgroundBorderless"
+                        android:padding="8dp"
+                        android:scaleType="fitXY"
+                        android:src="@drawable/ic_close_white_32dp" />
+                </LinearLayout>
+            </android.support.v7.widget.Toolbar>
+
+        </android.support.design.widget.AppBarLayout>
+
+        <!--<EditText-->
+        <!--android:id="@+id/editText"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:focusableInTouchMode="true"-->
+        <!--android:lines="1"-->
+        <!--android:imeOptions="actionDone"/>-->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/capture" />
+
+            <Button
+                android:id="@+id/hide"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/hide" />
+        </LinearLayout>
+
+        <ScrollView
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/floating_window_bg">
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </ScrollView>
+
+    </LinearLayout>
+
+
+    <ImageView
+        android:id="@+id/resizer"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/circle_blue"
+        android:padding="6dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_resizer"
+        android:tint="@android:color/white"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/move_cursor"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/circle_blue"
+        android:padding="5dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_move_cursor"
+        android:tint="@android:color/white"
+        android:visibility="gone" />
+
+</RelativeLayout>
