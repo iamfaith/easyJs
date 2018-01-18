@@ -164,13 +164,20 @@ public class ScreenCapturer {
         isScreenshot = true;
         if (startScreenCapture()) {
             Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
+//            handler.postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+//                    Log.d(TAG, "start startCapture");
+//                    startCapture();
+//                }
+//            }, 200);
+            handler.post(new Runnable() {
                 @Override
                 public void run() {
                     Log.d(TAG, "start startCapture");
                     startCapture();
                 }
-            }, 200);
+            });
         }
     }
 

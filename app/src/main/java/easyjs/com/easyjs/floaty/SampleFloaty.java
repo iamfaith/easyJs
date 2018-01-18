@@ -97,7 +97,7 @@ public class SampleFloaty extends ResizableFloaty.AbstractResizableFloaty {
             @Override
             public void onClick(View v) {
                 if (container.getVisibility() == View.VISIBLE) {
-                    container.setVisibility(View.GONE);
+                    container.setVisibility(View.INVISIBLE);
                 } else {
                     container.setVisibility(View.VISIBLE);
                 }
@@ -120,8 +120,7 @@ public class SampleFloaty extends ResizableFloaty.AbstractResizableFloaty {
                     };
                     Thread thread = new Thread(runnable);
                     thread.start();
-                } else {
-                    Toast.makeText(context, "capture success", Toast.LENGTH_SHORT).show();
+                    container.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -154,6 +153,7 @@ public class SampleFloaty extends ResizableFloaty.AbstractResizableFloaty {
             @Override
             public void onClick(View v) {
                 if (screenCapturer != null) {
+                    container.setVisibility(View.INVISIBLE);
                     screenCapturer.screenCapture();
                 }
             }
