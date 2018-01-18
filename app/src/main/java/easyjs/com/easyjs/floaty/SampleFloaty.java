@@ -25,6 +25,7 @@ import easyjs.com.common.HttpUtil;
 import easyjs.com.easyjs.EasyJs;
 import easyjs.com.easyjs.EasyJsActivity;
 import easyjs.com.easyjs.R;
+import easyjs.com.easyjs.droidcommon.BaseActivity;
 import easyjs.com.easyjs.droidcommon.screencapture.ScreenCapturer;
 
 /**
@@ -103,7 +104,7 @@ public class SampleFloaty extends ResizableFloaty.AbstractResizableFloaty {
                 }
             }
         });
-        screenCapturer = ScreenCapturer.newInstance(EasyJs.getIntance(context).getAppUtils().getCurrentActivity());
+        screenCapturer = ScreenCapturer.newInstance((BaseActivity) EasyJs.getIntance(context).getAppUtils().getCurrentActivity());
         screenCapturer.setCaptureListener(new ScreenCapturer.OnCaptureListener() {
             @Override
             public void onScreenCaptureSuccess(Bitmap bitmap, String savePath) {

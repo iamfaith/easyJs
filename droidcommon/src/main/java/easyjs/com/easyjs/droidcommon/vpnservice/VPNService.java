@@ -19,7 +19,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import easyjs.com.droidcommon.R;
+import easyjs.com.easyjs.droidcommon.R;
+
 
 /**
  * Created by faith on 2018/1/17.

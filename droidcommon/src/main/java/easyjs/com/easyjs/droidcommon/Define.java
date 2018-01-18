@@ -33,10 +33,13 @@ public class Define {
     }
 
     public enum EventCode {
-        SUCCESS("SUCCESS"), FAIL("FAIL");
+        SUCCESS("SUCCESS"),
+        FAIL("FAIL"),
+        CANCEL("CANCEL");
+
         private String code;
 
-        EventCode(String code) {
+        private EventCode(String code) {
             this.code = code;
         }
 
@@ -74,6 +77,6 @@ public class Define {
     }
 
     public interface IEventListener {
-        void handleEvent();
+        void handleEvent(EventCode eventCode, CallBackMsg callBackMsg);
     }
 }

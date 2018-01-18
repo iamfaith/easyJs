@@ -38,6 +38,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import easyjs.com.easyjs.droidcommon.BaseActivity;
+import easyjs.com.easyjs.droidcommon.Define;
+import easyjs.com.easyjs.droidcommon.permission.PermissionManager;
 import easyjs.com.easyjs.droidcommon.util.AndroidUtil;
 import easyjs.com.easyjs.droidcommon.util.ScreenMetrics;
 
@@ -49,7 +52,7 @@ import easyjs.com.easyjs.droidcommon.util.ScreenMetrics;
 public class ScreenCapturer {
 
     private static String TAG = ScreenCapture.class.getName();
-    private Activity mActivity;
+    private BaseActivity mActivity;
 
     private final int REQUEST_CODE_SAVE_IMAGE_FILE = 110;
 
@@ -108,12 +111,12 @@ public class ScreenCapturer {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public static ScreenCapturer newInstance(Activity activity) {
+    public static ScreenCapturer newInstance(BaseActivity activity) {
         return new ScreenCapturer(activity);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    public ScreenCapturer(Activity activity) {
+    public ScreenCapturer(BaseActivity activity) {
         this.mActivity = activity;
         createEnvironment();
     }
@@ -281,28 +284,46 @@ public class ScreenCapturer {
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void checkPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (AndroidUtil.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                    mActivity.requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_SAVE_IMAGE_FILE);
+        String[] needPermissions = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        PermissionManager.requestPermission(mActivity, needPermissions, new Define.IEventListener() {
+            @Override
+            public void handleEvent(Define.EventCode eventCode, Define.CallBackMsg callBackMsg) {
+                if (eventCode != Define.EventCode.SUCCESS) {
+                    if (mCaptureListener != null) {
+                        mCaptureListener.onScreenCaptureFailed("Permission denied");
+                    }
                 } else {
-                    mActivity.requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_SAVE_IMAGE_FILE);
-                }
-                return;
-            } else {
-                if (isScreenshot) {
-                    saveToFile();
-                } else {
-                    recordClick();
+                    if (isScreenshot) {
+                        saveToFile();
+                    } else {
+                        recordClick();
+                    }
                 }
             }
-        } else {
-            if (isScreenshot) {
-                saveToFile();
-            } else {
-                recordClick();
-            }
-        }
+        });
+
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            if (AndroidUtil.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+//                if (ActivityCompat.shouldShowRequestPermissionRationale(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+//                    mActivity.requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_SAVE_IMAGE_FILE);
+//                } else {
+//                    mActivity.requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_SAVE_IMAGE_FILE);
+//                }
+//                return;
+//            } else {
+//                if (isScreenshot) {
+//                    saveToFile();
+//                } else {
+//                    recordClick();
+//                }
+//            }
+//        } else {
+//            if (isScreenshot) {
+//                saveToFile();
+//            } else {
+//                recordClick();
+//            }
+//        }
     }
 
     private void saveToFile() {
@@ -519,31 +540,31 @@ public class ScreenCapturer {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_CODE_SAVE_IMAGE_FILE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
-                    if (isScreenshot) {
-                        saveToFile();
-                    } else {
-                        recordClick();
-                    }
-                } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-//                    Toast.makeText(mActivity, "Permission denied", Toast.LENGTH_SHORT).show();
-                    if (mCaptureListener != null) {
-                        mCaptureListener.onScreenCaptureFailed("Permission denied");
-                    }
-                }
-                break;
-            }
-        }
-    }
+//    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+//        switch (requestCode) {
+//            case REQUEST_CODE_SAVE_IMAGE_FILE: {
+//                // If request is cancelled, the result arrays are empty.
+//                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                    // permission was granted, yay! Do the
+//                    // contacts-related task you need to do.
+//                    if (isScreenshot) {
+//                        saveToFile();
+//                    } else {
+//                        recordClick();
+//                    }
+//                } else {
+//                    // permission denied, boo! Disable the
+//                    // functionality that depends on this permission.
+////                    Toast.makeText(mActivity, "Permission denied", Toast.LENGTH_SHORT).show();
+//                    if (mCaptureListener != null) {
+//                        mCaptureListener.onScreenCaptureFailed("Permission denied");
+//                    }
+//                }
+//                break;
+//            }
+//        }
+//    }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void cleanup() {
