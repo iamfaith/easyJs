@@ -1,8 +1,10 @@
 package easyjs.com.easyjs.droidcommon.proxy;
 
 import android.Manifest;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Environment;
+import android.security.KeyChain;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
@@ -12,10 +14,13 @@ import net.lightbody.bmp.BrowserMobProxyServer;
 import net.lightbody.bmp.core.har.HarLog;
 import net.lightbody.bmp.core.har.HarRequest;
 import net.lightbody.bmp.core.har.HarResponse;
+import net.lightbody.bmp.mitm.RootCertificateGenerator;
+import net.lightbody.bmp.mitm.manager.ImpersonatingMitmManager;
 import net.lightbody.bmp.proxy.CaptureType;
 
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -26,6 +31,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import easyjs.com.easyjs.droidcommon.BaseActivity;
 import easyjs.com.easyjs.droidcommon.Define;
 import easyjs.com.easyjs.droidcommon.permission.PermissionManager;
+
+import static easyjs.com.easyjs.droidcommon.Define.RequestCode.CERTFITICATE;
 
 /**
  * Created by faith on 2018/1/18.
@@ -43,6 +50,8 @@ public class ProxyService {
     public interface OnProxyListener {
         void OnProxyStartFail(Define.CallBackMsg errMsg);
 
+        void OnCertInstallFail(Define.CallBackMsg errMsg);
+
         void OnProxyStartSuccess();
     }
 
@@ -50,9 +59,67 @@ public class ProxyService {
 
     }
 
+    public void installCert(final @NonNull BaseActivity activity) {
+        Thread t = new Thread(() -> {
+            try {
+                File dirFile = new File(Environment.getExternalStorageDirectory() + "/har");
+                File certificateFile = new File(dirFile, "private-key.pem");
+                if (certificateFile.exists())
+                    certificateFile.delete();
+                certificateFile.createNewFile();
+                File rootCertificate = new File(dirFile, "certificate.cer");
+                if (rootCertificate.exists())
+                    rootCertificate.delete();
+                rootCertificate.createNewFile();
+                // create a CA Root Certificate using default settings
+                RootCertificateGenerator rootCertificateGenerator = RootCertificateGenerator.builder().build();
+
+                // save the newly-generated Root Certificate and Private Key -- the .cer file can be imported
+                // directly into a browser
+                rootCertificateGenerator.saveRootCertificateAsPemFile(rootCertificate);
+                rootCertificateGenerator.savePrivateKeyAsPemFile(certificateFile, "password2008");
+
+                // or save the certificate and private key as a PKCS12 keystore, for later use
+//        rootCertificateGenerator.saveRootCertificateAndKey("PKCS12", new File(dirFile,"keystore.p12"),
+//                "mysecretabc", "goodluck2018");
+
+                // tell the ImpersonatingMitmManager  use the RootCertificateGenerator we just configured
+                final ImpersonatingMitmManager mitmManager = ImpersonatingMitmManager.builder()
+                        .rootCertificateSource(rootCertificateGenerator)
+                        .build();
+
+
+                byte[] keychainBytes;
+                try (FileInputStream is = new FileInputStream(certificateFile)) {
+                    keychainBytes = new byte[is.available()];
+                    is.read(keychainBytes);
+                }
+
+                Intent intent = KeyChain.createInstallIntent();
+                intent.putExtra(KeyChain.EXTRA_CERTIFICATE, keychainBytes);
+                intent.putExtra(KeyChain.EXTRA_NAME, "install CA Certificate");
+                activity.registerCallback(CERTFITICATE, (eventCode, callBackMsg) -> {
+                    if (eventCode != Define.EventCode.SUCCESS) {
+                        listener.OnCertInstallFail(callBackMsg);
+                    } else {
+                        stopProxy();
+                        proxy.setMitmDisabled(true);
+                        proxy.setMitmManager(mitmManager);
+                        startProxy();
+                    }
+                });
+                activity.startActivityForResult(intent, CERTFITICATE);
+            } catch (Exception e) {
+                listener.OnCertInstallFail(Define.CallBackMsg.buildMsg("install cert fail"));
+                Log.e("ProxyService", "install cert fail");
+            }
+        });
+        t.start();
+    }
+
     public void startProxy(final @NonNull BaseActivity activity, OnProxyListener listener) {
         this.listener = listener;
-        String[] needPermissions = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        String[] needPermissions = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
         PermissionManager.requestPermission(activity, needPermissions, (eventCode, callBackMsg) -> {
             if (eventCode != Define.EventCode.SUCCESS) {
                 this.listener.OnProxyStartFail(callBackMsg);
@@ -128,6 +195,7 @@ public class ProxyService {
         if (proxy != null) {
             proxy.stop();
         }
+        isProxyRunning = false;
     }
 
 

@@ -3,6 +3,8 @@ package easyjs.com.easyjs;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.RequiresApi;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,7 +27,12 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
     private Button btn1;
     private Button btn2;
     private SampleFloaty floatyWindow;
-
+    private Handler handler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+            return false;
+        }
+    });
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +42,25 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
         FloatingWindowPermissionUtil.goToFloatingWindowPermissionSettingIfNeeded(this);
         startService(new Intent(this, FloatyService.class));
         floatyWindow = new SampleFloaty("test", getApplicationContext());
+        ProxyService.getInstance().startProxy(this, new ProxyService.OnProxyListener() {
+            @Override
+            public void OnProxyStartFail(Define.CallBackMsg errMsg) {
+                Toast.makeText(EasyJsActivity.this, errMsg.msg, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void OnCertInstallFail(Define.CallBackMsg errMsg) {
+                Log.d("ProxyService", "install cert fail");
+            }
+
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            public void OnProxyStartSuccess() {
+                ProxyService.getInstance().forDebugger();
+                Log.d("ProxyService", "proxy success");
+            }
+
+        });
     }
 
     // 方法：初始化View
@@ -54,22 +80,8 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.button:
-                ProxyService.getInstance().startProxy(this, new ProxyService.OnProxyListener() {
-                    @Override
-                    public void OnProxyStartFail(Define.CallBackMsg errMsg) {
-                        Toast.makeText(EasyJsActivity.this, errMsg.msg, Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void OnProxyStartSuccess() {
-                        ProxyService.getInstance().forDebugger();
-                        Log.d("ProxyService", "proxy success");
-
-                        // Toast.makeText(EasyJsActivity.this, "proxy success", Toast.LENGTH_SHORT).show();
-
-                    }
-                });
-
+                //安装证书
+                ProxyService.getInstance().installCert(this);
                 break;
             case R.id.button2:
                 FloatyService.addWindow(new ResizableFloatyWindow(floatyWindow));
@@ -82,6 +94,7 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (floatyWindow.getScreenCapturer() != null) {
             floatyWindow.getScreenCapturer().onActivityResult(requestCode, resultCode, data);
         }

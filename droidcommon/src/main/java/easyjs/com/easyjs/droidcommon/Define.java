@@ -15,6 +15,7 @@ public class Define {
         public static final int WRITE_EXTERNAL_STORAGE = 1;
         public static final int READ_EXTERNAL_STORAGE = 3;
         public static final int INTERNET = 5;
+        public static final int CERTFITICATE = 7;
         public static final Map<String, Integer> map = new HashMap<>();
 
         static {
