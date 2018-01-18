@@ -13,6 +13,7 @@ import com.stardust.enhancedfloaty.FloatyService;
 import com.stardust.enhancedfloaty.ResizableFloatyWindow;
 import com.stardust.enhancedfloaty.util.FloatingWindowPermissionUtil;
 
+import easyjs.com.easyjs.droidcommon.vpnservice.LocalVPN;
 import easyjs.com.easyjs.floaty.SampleFloaty;
 
 
@@ -49,6 +50,7 @@ public class EasyJsActivity extends Activity implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.button:
+                this.startActivity( new Intent(this, LocalVPN.class));
                 break;
             case R.id.button2:
                 FloatyService.addWindow(new ResizableFloatyWindow(floatyWindow));

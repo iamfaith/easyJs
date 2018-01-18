@@ -1,12 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="easyjs.com.droidcommon">
+    package="easyjs.com.easyjs.droidcommon">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <application>
         <activity android:name="easyjs.com.easyjs.droidcommon.screencapture.ScreenCaptureRequestActivity"></activity>
-    </application>
+        <service
+            android:name=".vpnservice.VPNService"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.BIND_VPN_SERVICE">
 
+            <intent-filter>
+                <action android:name="android.net.VpnService"/>
+            </intent-filter>
+        </service>
+    </application>
+    <uses-permission android:name="android.permission.INTERNET"/>
 </manifest>

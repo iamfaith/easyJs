@@ -28,7 +28,7 @@ import easyjs.com.droidcommon.R;
 public class VPNService extends VpnService
 {
     private static final String TAG = VPNService.class.getSimpleName();
-    private static final String VPN_ADDRESS = "10.0.0.2"; // Only IPv4 support for now
+    private static final String VPN_ADDRESS = "127.0.0.1"; // Only IPv4 support for now
     private static final String VPN_ROUTE = "0.0.0.0"; // Intercept everything
 
     public static final String BROADCAST_VPN_STATE = "xyz.hexene.localvpn.VPN_STATE";
