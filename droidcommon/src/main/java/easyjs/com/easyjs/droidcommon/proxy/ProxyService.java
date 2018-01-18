@@ -19,6 +19,10 @@ import net.lightbody.bmp.mitm.manager.ImpersonatingMitmManager;
 import net.lightbody.bmp.proxy.CaptureType;
 
 
+import org.littleshoot.proxy.mitm.Authority;
+import org.littleshoot.proxy.mitm.CertificateSniffingMitmManager;
+import org.littleshoot.proxy.mitm.RootCertificateException;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.text.SimpleDateFormat;
@@ -63,30 +67,7 @@ public class ProxyService {
         Thread t = new Thread(() -> {
             try {
                 File dirFile = new File(Environment.getExternalStorageDirectory() + "/har");
-                File certificateFile = new File(dirFile, "private-key.pem");
-                if (certificateFile.exists())
-                    certificateFile.delete();
-                certificateFile.createNewFile();
-                File rootCertificate = new File(dirFile, "certificate.cer");
-                if (rootCertificate.exists())
-                    rootCertificate.delete();
-                rootCertificate.createNewFile();
-                // create a CA Root Certificate using default settings
-                RootCertificateGenerator rootCertificateGenerator = RootCertificateGenerator.builder().build();
-
-                // save the newly-generated Root Certificate and Private Key -- the .cer file can be imported
-                // directly into a browser
-                rootCertificateGenerator.saveRootCertificateAsPemFile(rootCertificate);
-                rootCertificateGenerator.savePrivateKeyAsPemFile(certificateFile, "password2008");
-
-                // or save the certificate and private key as a PKCS12 keystore, for later use
-//        rootCertificateGenerator.saveRootCertificateAndKey("PKCS12", new File(dirFile,"keystore.p12"),
-//                "mysecretabc", "goodluck2018");
-
-                // tell the ImpersonatingMitmManager  use the RootCertificateGenerator we just configured
-                final ImpersonatingMitmManager mitmManager = ImpersonatingMitmManager.builder()
-                        .rootCertificateSource(rootCertificateGenerator)
-                        .build();
+                File certificateFile = new File(dirFile, "littleproxy-mitm.pem");
 
 
                 byte[] keychainBytes;
@@ -102,10 +83,7 @@ public class ProxyService {
                     if (eventCode != Define.EventCode.SUCCESS) {
                         listener.OnCertInstallFail(callBackMsg);
                     } else {
-                        stopProxy();
-                        proxy.setMitmDisabled(true);
-                        proxy.setMitmManager(mitmManager);
-                        startProxy();
+
                     }
                 });
                 activity.startActivityForResult(intent, CERTFITICATE);
@@ -131,9 +109,15 @@ public class ProxyService {
                     }
                 else
                     dirFile.mkdir();
-
-
                 proxy = new BrowserMobProxyServer();
+
+                proxy.setMitmDisabled(false);
+                try {
+                    proxy.setMitmManager(new CertificateSniffingMitmManager(new Authority()));
+                } catch (RootCertificateException e) {
+                    Log.e("ProxyService", "cert generate fail");
+                }
+
                 proxy.setTrustAllServers(true);
                 proxy.enableHarCaptureTypes(CaptureType.REQUEST_HEADERS, CaptureType.REQUEST_COOKIES,
                         CaptureType.REQUEST_CONTENT, CaptureType.RESPONSE_HEADERS, CaptureType.REQUEST_COOKIES,
@@ -208,7 +192,8 @@ public class ProxyService {
                     harLogs.getEntries().forEach(harEntry -> {
                         HarRequest harRequest = harEntry.getRequest();
                         HarResponse harResponse = harEntry.getResponse();
-                        Log.d("ProxyService", harRequest.getUrl() + "--" + harResponse.getContent().getText());
+                        if (harRequest.getUrl().contains("https"))
+                            Log.d("ProxyService", harRequest.getUrl() + "--" + harResponse.getContent().getText());
                     });
                 });
                 try {
