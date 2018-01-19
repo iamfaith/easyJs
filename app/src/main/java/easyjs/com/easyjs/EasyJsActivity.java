@@ -2,6 +2,7 @@ package easyjs.com.easyjs;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
@@ -15,6 +16,8 @@ import android.widget.Toast;
 import com.stardust.enhancedfloaty.FloatyService;
 import com.stardust.enhancedfloaty.ResizableFloatyWindow;
 import com.stardust.enhancedfloaty.util.FloatingWindowPermissionUtil;
+
+import java.io.IOException;
 
 import easyjs.com.easyjs.droidcommon.BaseActivity;
 import easyjs.com.easyjs.droidcommon.Define;
@@ -61,6 +64,15 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
             }
 
         });
+        AssetManager assetManager = getApplicationContext().getAssets();
+        try {
+            String[] dbs =assetManager.list("data");
+            for (String db : dbs) {
+                Toast.makeText(EasyJsActivity.this, db, Toast.LENGTH_SHORT).show();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     // 方法：初始化View
