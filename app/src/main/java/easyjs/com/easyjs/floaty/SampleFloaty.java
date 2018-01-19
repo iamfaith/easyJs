@@ -62,7 +62,7 @@ public class SampleFloaty extends ResizableFloaty.AbstractResizableFloaty {
         }
     };
 
-    private final void updateText(String str) {
+    public final void updateText(String str) {
         Message msg = new Message();
         Bundle data = new Bundle();
         msg.setData(data);

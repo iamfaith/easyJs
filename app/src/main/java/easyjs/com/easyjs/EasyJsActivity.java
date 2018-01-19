@@ -17,10 +17,13 @@ import com.stardust.enhancedfloaty.FloatyService;
 import com.stardust.enhancedfloaty.ResizableFloatyWindow;
 import com.stardust.enhancedfloaty.util.FloatingWindowPermissionUtil;
 
+import net.lightbody.bmp.core.har.HarEntry;
+
 import java.io.IOException;
 
 import easyjs.com.easyjs.droidcommon.BaseActivity;
 import easyjs.com.easyjs.droidcommon.Define;
+import easyjs.com.easyjs.droidcommon.proxy.IUriFilter;
 import easyjs.com.easyjs.floaty.SampleFloaty;
 import easyjs.com.easyjs.droidcommon.proxy.ProxyService;
 
@@ -59,10 +62,21 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void OnProxyStartSuccess() {
-                ProxyService.getInstance().forDebugger();
+                ProxyService.getInstance().checkProxyData();
                 Log.d("ProxyService", "proxy success");
             }
 
+            @Override
+            public void OnDataReceive(HarEntry harEntry) {
+                String respStr = harEntry.getResponse().getContent().getText();
+                floatyWindow.updateText(respStr);
+            }
+
+        }, url -> {
+            if (url.contains("/question/fight/findQuiz")) {
+                return true;
+            } else
+                return false;
         });
         AssetManager assetManager = getApplicationContext().getAssets();
         try {

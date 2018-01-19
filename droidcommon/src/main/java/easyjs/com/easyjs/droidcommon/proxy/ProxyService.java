@@ -11,11 +11,10 @@ import android.util.Log;
 
 import net.lightbody.bmp.BrowserMobProxy;
 import net.lightbody.bmp.BrowserMobProxyServer;
+import net.lightbody.bmp.core.har.HarEntry;
 import net.lightbody.bmp.core.har.HarLog;
 import net.lightbody.bmp.core.har.HarRequest;
 import net.lightbody.bmp.core.har.HarResponse;
-import net.lightbody.bmp.mitm.RootCertificateGenerator;
-import net.lightbody.bmp.mitm.manager.ImpersonatingMitmManager;
 import net.lightbody.bmp.proxy.CaptureType;
 
 
@@ -57,7 +56,11 @@ public class ProxyService {
         void OnCertInstallFail(Define.CallBackMsg errMsg);
 
         void OnProxyStartSuccess();
+
+        void OnDataReceive(HarEntry harEntry);
     }
+
+    public Optional<IUriFilter> uriFilter;
 
     private ProxyService() {
 
@@ -95,8 +98,9 @@ public class ProxyService {
         t.start();
     }
 
-    public void startProxy(final @NonNull BaseActivity activity, OnProxyListener listener) {
+    public void startProxy(final @NonNull BaseActivity activity, OnProxyListener listener, IUriFilter uriFilter) {
         this.listener = listener;
+        this.uriFilter = Optional.ofNullable(uriFilter);
         String[] needPermissions = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
         PermissionManager.requestPermission(activity, needPermissions, (eventCode, callBackMsg) -> {
             if (eventCode != Define.EventCode.SUCCESS) {
@@ -184,7 +188,7 @@ public class ProxyService {
 
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public void forDebugger() {
+    public void checkProxyData() {
         Thread t = new Thread(() -> {
             while (true) {
                 Optional<HarLog> harLog = getHarLog();
@@ -192,8 +196,17 @@ public class ProxyService {
                     harLogs.getEntries().forEach(harEntry -> {
                         HarRequest harRequest = harEntry.getRequest();
                         HarResponse harResponse = harEntry.getResponse();
-                        if (harRequest.getUrl().contains("https"))
-                            Log.d("ProxyService", harRequest.getUrl() + "--" + harResponse.getContent().getText());
+                        String url = harRequest.getUrl();
+                        uriFilter.ifPresent(filterConsumer -> {
+                            if (filterConsumer.accept(url)) {
+                                this.listener.OnDataReceive(harEntry);
+                            }
+                        });
+                        if (!uriFilter.isPresent()) {
+                            this.listener.OnDataReceive(harEntry);
+                        }
+//                        if (harRequest.getUrl().contains("https"))
+//                            Log.d("ProxyService", harRequest.getUrl() + "--" + harResponse.getContent().getText());
                     });
                 });
                 try {
