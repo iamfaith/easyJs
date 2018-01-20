@@ -44,7 +44,7 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
     private Button btn3;
     private EditText editText;
     private SampleFloaty floatyWindow;
-    private  Question question = new Question();
+    private static Question question = new Question();
     private final String extPath = "/helper/data.db";
     private Handler handler = new Handler(new Handler.Callback() {
         @Override
@@ -89,7 +89,7 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
                         return;
                     Log.d("JSON", respStr);
                     String data = JSON.parseObject(respStr).getString("data");
-                    Question question = JSON.parseObject(data, Question.class);
+                    question = JSON.parseObject(data, Question.class);
 
                     Optional<String> ansOpt = qryAns(question.getSchool(), question.getType(), question.getQuiz());
                     ansOpt.ifPresent(ans -> floatyWindow.updateText("标准答案:" + ans));
@@ -110,7 +110,7 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
                     Map<String, Object> data = JSON.parseObject(dataStr, Map.class);
                     question.setAnswer(data.get("answer") + "");
                     int num = (data.get("num") instanceof Integer ? (int) data.get("num") : Integer.parseInt((String) data.get("num")));
-                    Log.d("JSON", num + "--" +dataStr + "--" + question);
+                    Log.d("JSON", num + "--" + dataStr + "--" + question);
                     try {
                         //答案 update database
                         if (question.isFound == false && question.num == num) {
