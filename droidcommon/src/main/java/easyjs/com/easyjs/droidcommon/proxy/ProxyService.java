@@ -26,9 +26,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import easyjs.com.easyjs.droidcommon.BaseActivity;
@@ -69,7 +71,7 @@ public class ProxyService {
 
     public void installCert(final @NonNull BaseActivity activity, boolean forceInstall) {
         Boolean isInstallCert = SharedPreferenceUtils.getBoolean(activity, "isInstallNewCert", false);
-        if (!isInstallCert || forceInstall) {
+        if (isInstallCert == false || forceInstall) {
             Thread t = new Thread(() -> {
                 try {
                     File dirFile = new File(Environment.getExternalStorageDirectory() + "/har");
@@ -192,6 +194,15 @@ public class ProxyService {
         isProxyRunning = false;
     }
 
+    Set<HarEntry> set = new HashSet<>();
+
+    private boolean checkExist(HarEntry harEntry) {
+        if (!set.contains(harEntry)) {
+            set.add(harEntry);
+            return false;
+        } else
+            return true;
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void checkProxyData() {
@@ -201,15 +212,16 @@ public class ProxyService {
                 harLog.ifPresent(harLogs -> {
                     harLogs.getEntries().forEach(harEntry -> {
                         HarRequest harRequest = harEntry.getRequest();
-                        HarResponse harResponse = harEntry.getResponse();
                         String url = harRequest.getUrl();
                         uriFilter.ifPresent(filterConsumer -> {
                             if (filterConsumer.accept(url)) {
-                                this.listener.OnDataReceive(harEntry);
+                                if (!checkExist(harEntry))
+                                    this.listener.OnDataReceive(harEntry);
                             }
                         });
                         if (!uriFilter.isPresent()) {
-                            this.listener.OnDataReceive(harEntry);
+                            if (!checkExist(harEntry))
+                                this.listener.OnDataReceive(harEntry);
                         }
 //                        if (harRequest.getUrl().contains("https"))
 //                            Log.d("ProxyService", harRequest.getUrl() + "--" + harResponse.getContent().getText());

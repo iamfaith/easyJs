@@ -19,6 +19,8 @@ import com.stardust.enhancedfloaty.FloatyService;
 import com.stardust.enhancedfloaty.ResizableFloaty;
 import com.stardust.enhancedfloaty.ResizableFloatyWindow;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.File;
 
 import easyjs.com.common.HttpUtil;
@@ -58,7 +60,8 @@ public class SampleFloaty extends ResizableFloaty.AbstractResizableFloaty {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             String str = msg.getData().getString("msg");
-            textView.setText(str);
+            if (!StringUtils.isEmpty(str))
+                textView.setText(str);
         }
     };
 
