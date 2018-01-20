@@ -40,11 +40,11 @@ public class SampleFloaty extends ResizableFloaty.AbstractResizableFloaty {
     private String name;
     private Button button;
     Context context;
-    ScreenCapturer screenCapturer;
+//    ScreenCapturer screenCapturer;
 
-    public ScreenCapturer getScreenCapturer() {
-        return screenCapturer;
-    }
+//    public ScreenCapturer getScreenCapturer() {
+//        return screenCapturer;
+//    }
 
     public SampleFloaty(String btnName, Context context) {
         this.name = btnName;
@@ -104,48 +104,48 @@ public class SampleFloaty extends ResizableFloaty.AbstractResizableFloaty {
                 }
             }
         });
-        screenCapturer = ScreenCapturer.newInstance((BaseActivity) EasyJs.getIntance(context).getAppUtils().getCurrentActivity());
-        screenCapturer.setCaptureListener(new ScreenCapturer.OnCaptureListener() {
-            @Override
-            public void onScreenCaptureSuccess(Bitmap bitmap, String savePath) {
-                if (savePath != null) {
-                    final File screenShot = new File("/sdcard/1.png");
-                    final String url = "http://api.happyocr.com/send";
-
-                    Runnable runnable = new Runnable() {
-                        @Override
-                        public void run() {
-                            String respStr = HttpUtil.getInstance().postFile(url, screenShot);
-                            updateText(respStr);
-                        }
-                    };
-                    Thread thread = new Thread(runnable);
-                    thread.start();
-                    container.setVisibility(View.VISIBLE);
-                }
-            }
-
-            @Override
-            public void onScreenCaptureFailed(String errorMsg) {
-            }
-
-            @Override
-            public void onScreenRecordStart() {
-            }
-
-            @Override
-            public void onScreenRecordStop() {
-            }
-
-            @Override
-            public void onScreenRecordSuccess(String savePath) {
-            }
-
-            @Override
-            public void onScreenRecordFailed(String errorMsg) {
-            }
-        });
-        screenCapturer.setImagePath("/sdcard", "1.png");
+//        screenCapturer = ScreenCapturer.newInstance((BaseActivity) EasyJs.getIntance(context).getAppUtils().getCurrentActivity());
+//        screenCapturer.setCaptureListener(new ScreenCapturer.OnCaptureListener() {
+//            @Override
+//            public void onScreenCaptureSuccess(Bitmap bitmap, String savePath) {
+//                if (savePath != null) {
+//                    final File screenShot = new File("/sdcard/1.png");
+//                    final String url = "http://api.happyocr.com/send";
+//
+//                    Runnable runnable = new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            String respStr = HttpUtil.getInstance().postFile(url, screenShot);
+//                            updateText(respStr);
+//                        }
+//                    };
+//                    Thread thread = new Thread(runnable);
+//                    thread.start();
+//                    container.setVisibility(View.VISIBLE);
+//                }
+//            }
+//
+//            @Override
+//            public void onScreenCaptureFailed(String errorMsg) {
+//            }
+//
+//            @Override
+//            public void onScreenRecordStart() {
+//            }
+//
+//            @Override
+//            public void onScreenRecordStop() {
+//            }
+//
+//            @Override
+//            public void onScreenRecordSuccess(String savePath) {
+//            }
+//
+//            @Override
+//            public void onScreenRecordFailed(String errorMsg) {
+//            }
+//        });
+//        screenCapturer.setImagePath("/sdcard", "1.png");
 
         button = view.findViewById(R.id.button);
         button.setText(name);
@@ -153,10 +153,10 @@ public class SampleFloaty extends ResizableFloaty.AbstractResizableFloaty {
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onClick(View v) {
-                if (screenCapturer != null) {
-                    container.setVisibility(View.INVISIBLE);
-                    screenCapturer.screenCapture();
-                }
+//                if (screenCapturer != null) {
+//                    container.setVisibility(View.INVISIBLE);
+//                    screenCapturer.screenCapture();
+//                }
             }
         });
         return view;

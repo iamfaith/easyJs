@@ -39,14 +39,14 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
             return false;
         }
     });
+
+    @TargetApi(Build.VERSION_CODES.N)
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_easy_js);
         initView();
-        FloatingWindowPermissionUtil.goToFloatingWindowPermissionSettingIfNeeded(this);
-        startService(new Intent(this, FloatyService.class));
         floatyWindow = new SampleFloaty("test", getApplicationContext());
         ProxyService.getInstance().startProxy(this, new ProxyService.OnProxyListener() {
             @Override
@@ -68,25 +68,37 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
 
             @Override
             public void OnDataReceive(HarEntry harEntry) {
-                String respStr = harEntry.getResponse().getContent().getText();
-                floatyWindow.updateText(respStr);
+                String url = harEntry.getRequest().getUrl();
+                //问题
+                if (url.contains("findQuiz")) {
+                    String respStr = harEntry.getResponse().getContent().getText();
+                    floatyWindow.updateText(respStr);
+                } else {
+                    //答案 update database
+
+                }
             }
 
         }, url -> {
-            if (url.contains("/question/fight/findQuiz")) {
+            if (url.contains("https")) {
+                Log.d("https", url);
+            }
+            if (url.contains("https") && url.contains("question.hortor.net")) {
                 return true;
             } else
                 return false;
         });
         AssetManager assetManager = getApplicationContext().getAssets();
         try {
-            String[] dbs =assetManager.list("data");
+            String[] dbs = assetManager.list("data");
             for (String db : dbs) {
                 Toast.makeText(EasyJsActivity.this, db, Toast.LENGTH_SHORT).show();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+        //安装证书
+        ProxyService.getInstance().installCert(this, false);
     }
 
     // 方法：初始化View
@@ -106,10 +118,11 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.button:
-                //安装证书
-                ProxyService.getInstance().installCert(this);
+                ProxyService.getInstance().installCert(this, true);
                 break;
             case R.id.button2:
+                FloatingWindowPermissionUtil.goToFloatingWindowPermissionSettingIfNeeded(this);
+                startService(new Intent(this, FloatyService.class));
                 FloatyService.addWindow(new ResizableFloatyWindow(floatyWindow));
                 break;
             default:
@@ -121,9 +134,9 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (floatyWindow.getScreenCapturer() != null) {
-            floatyWindow.getScreenCapturer().onActivityResult(requestCode, resultCode, data);
-        }
+//        if (floatyWindow.getScreenCapturer() != null) {
+//            floatyWindow.getScreenCapturer().onActivityResult(requestCode, resultCode, data);
+//        }
     }
 
     /**

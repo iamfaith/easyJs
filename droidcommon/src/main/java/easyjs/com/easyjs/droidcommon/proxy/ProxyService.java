@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import easyjs.com.easyjs.droidcommon.BaseActivity;
 import easyjs.com.easyjs.droidcommon.Define;
 import easyjs.com.easyjs.droidcommon.permission.PermissionManager;
+import easyjs.com.easyjs.droidcommon.util.SharedPreferenceUtils;
 
 import static easyjs.com.easyjs.droidcommon.Define.RequestCode.CERTFITICATE;
 
@@ -66,38 +67,43 @@ public class ProxyService {
 
     }
 
-    public void installCert(final @NonNull BaseActivity activity) {
-        Thread t = new Thread(() -> {
-            try {
-                File dirFile = new File(Environment.getExternalStorageDirectory() + "/har");
-                File certificateFile = new File(dirFile, "littleproxy-mitm.pem");
+    public void installCert(final @NonNull BaseActivity activity, boolean forceInstall) {
+        Boolean isInstallCert = SharedPreferenceUtils.getBoolean(activity, "isInstallNewCert", false);
+        if (!isInstallCert || forceInstall) {
+            Thread t = new Thread(() -> {
+                try {
+                    File dirFile = new File(Environment.getExternalStorageDirectory() + "/har");
+                    File certificateFile = new File(dirFile, "littleproxy-mitm.pem");
 
 
-                byte[] keychainBytes;
-                try (FileInputStream is = new FileInputStream(certificateFile)) {
-                    keychainBytes = new byte[is.available()];
-                    is.read(keychainBytes);
-                }
-
-                Intent intent = KeyChain.createInstallIntent();
-                intent.putExtra(KeyChain.EXTRA_CERTIFICATE, keychainBytes);
-                intent.putExtra(KeyChain.EXTRA_NAME, "install CA Certificate");
-                activity.registerCallback(CERTFITICATE, (eventCode, callBackMsg) -> {
-                    if (eventCode != Define.EventCode.SUCCESS) {
-                        listener.OnCertInstallFail(callBackMsg);
-                    } else {
-
+                    byte[] keychainBytes;
+                    try (FileInputStream is = new FileInputStream(certificateFile)) {
+                        keychainBytes = new byte[is.available()];
+                        is.read(keychainBytes);
                     }
-                });
-                activity.startActivityForResult(intent, CERTFITICATE);
-            } catch (Exception e) {
-                listener.OnCertInstallFail(Define.CallBackMsg.buildMsg("install cert fail"));
-                Log.e("ProxyService", "install cert fail");
-            }
-        });
-        t.start();
+
+                    Intent intent = KeyChain.createInstallIntent();
+                    intent.putExtra(KeyChain.EXTRA_CERTIFICATE, keychainBytes);
+                    intent.putExtra(KeyChain.EXTRA_NAME, "install CA Certificate");
+                    activity.registerCallback(CERTFITICATE, (eventCode, callBackMsg) -> {
+                        if (eventCode != Define.EventCode.SUCCESS) {
+                            listener.OnCertInstallFail(callBackMsg);
+                            SharedPreferenceUtils.putBoolean(activity, "isInstallNewCert", true);
+                        } else {
+
+                        }
+                    });
+                    activity.startActivityForResult(intent, CERTFITICATE);
+                } catch (Exception e) {
+                    listener.OnCertInstallFail(Define.CallBackMsg.buildMsg("install cert fail"));
+                    Log.e("ProxyService", "install cert fail");
+                }
+            });
+            t.start();
+        }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void startProxy(final @NonNull BaseActivity activity, OnProxyListener listener, IUriFilter uriFilter) {
         this.listener = listener;
         this.uriFilter = Optional.ofNullable(uriFilter);

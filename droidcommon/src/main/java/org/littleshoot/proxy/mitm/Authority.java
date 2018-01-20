@@ -34,10 +34,10 @@ public class Authority {
     public Authority() {
         keyStoreDir = new File(Environment.getExternalStorageDirectory() + "/har/");
         alias = "littleproxy-mitm"; // proxy id
-        password = "Be Your Own LanternHahaha".toCharArray();
+        password = "Be Your Own Lantern".toCharArray();
         organization = "LittleProxy-mitm"; // proxy name
         commonName = organization + ", describe proxy here"; // MITM is bad
-                                                             // normally
+        // normally
         organizationalUnitName = "Certificate Authority";
         certOrganization = organization; // proxy name
         certOrganizationalUnitName = organization
