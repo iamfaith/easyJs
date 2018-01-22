@@ -108,13 +108,16 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
                         return;
                     String dataStr = object.getString("data");
                     Map<String, Object> data = JSON.parseObject(dataStr, Map.class);
-                    question.setAnswer(data.get("answer") + "");
+                    int ansNum = (int) data.get("answer");
+                    question.setAnswer(ansNum + question.getOptions().get(ansNum));
                     int num = (data.get("num") instanceof Integer ? (int) data.get("num") : Integer.parseInt((String) data.get("num")));
                     Log.d("JSON", num + "--" + dataStr + "--" + question);
                     try {
-                        //答案 update database
                         if (question.isFound == false && question.num == num) {
                             instertQuestion(question);
+                        } else {
+                            //答案 update database
+                            updateQuestion(question);
                         }
                     } catch (Exception e) {
 
@@ -164,6 +167,13 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
     private void instertQuestion(Question question) {
         SQLiteUtil instance = SQLiteUtil.openDataBase(Environment.getExternalStorageDirectory() + extPath);
         instance.insert("questions", question.getMap());
+        instance.close();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void updateQuestion(Question question) {
+        SQLiteUtil instance = SQLiteUtil.openDataBase(Environment.getExternalStorageDirectory() + extPath);
+        instance.update("questions", question.getMap(), "quiz like ?", new String[]{question.getQuiz()});
         instance.close();
     }
 

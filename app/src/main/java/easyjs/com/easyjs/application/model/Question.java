@@ -2,6 +2,7 @@ package easyjs.com.easyjs.application.model;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,15 +17,24 @@ public class Question {
     protected String quiz;
     protected String school;
     protected String type;
-    protected String options;
+    protected List<String> options;
     protected String answer;
 
     public Map<String, String> getMap() {
         Map<String, String> map = new HashMap<>();
         for (Field field : this.getClass().getDeclaredFields()) {
             try {
-                if (field.get(this) instanceof String)
+                Class clz = field.getType();
+                if (clz == String.class)
                     map.put(field.getName(), (String) field.get(this));
+                if (clz == List.class) {
+                    StringBuffer stringBuffer = new StringBuffer(64);
+                    for (Object o : (List) field.get(this)) {
+                        stringBuffer.append(o);
+                        stringBuffer.append(" ");
+                    }
+                    map.put(field.getName(), stringBuffer.toString());
+                }
             } catch (IllegalAccessException e) {
             }
         }
@@ -55,11 +65,11 @@ public class Question {
         this.type = type;
     }
 
-    public String getOptions() {
+    public List<String> getOptions() {
         return options;
     }
 
-    public void setOptions(String options) {
+    public void setOptions(List<String> options) {
         this.options = options;
     }
 

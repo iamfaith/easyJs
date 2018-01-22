@@ -64,4 +64,16 @@ public class SQLiteUtil {
         db.insert(table, null, values);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void update(String table, Map<String, String> keyVal, String whereClause, String[] whereArgs) {
+        ContentValues values = new ContentValues();
+
+        // b. 向该对象中插入键值对
+        keyVal.forEach((key, val) -> {
+            values.put(key, val);
+        });
+        //注：ContentValues内部实现 = HashMap，区别在于：ContenValues Key只能是String类型，Value可存储基本类型数据 & String类型
+        db.update(table, values, whereClause, whereArgs);
+    }
+
 }

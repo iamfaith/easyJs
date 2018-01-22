@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import easyjs.com.easyjs.application.model.Question;
@@ -25,9 +27,12 @@ public class ExampleUnitTest {
     public void testMap() {
         Question question = new Question();
         question.setAnswer("1");
-        question.setOptions("2");
+        List<String> list = new ArrayList<>();
+        list.add("asdasd");
+        list.add("123123");
+        question.setOptions(list);
         Map<String, String> map = question.getMap();
-        map.get("quiz");
+        System.out.println(map);
     }
 
     @Test
@@ -37,6 +42,7 @@ public class ExampleUnitTest {
         Question question = JSON.parseObject(data, Question.class);
         System.out.println(data);
         System.out.println(question);
+        System.out.println(question.getOptions());
 //        JSON.parseArray()
 //        data.get("options")
     }
