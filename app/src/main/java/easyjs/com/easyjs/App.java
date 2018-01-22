@@ -10,18 +10,26 @@ import easyjs.com.easyjs.droidcommon.util.AndroidUtil;
 
 public class App extends Application {
     private static App app;
+    private EasyJs easyJs;
     private AndroidUtil util;
+
+    public EasyJs getEasyJs() {
+        return easyJs;
+    }
+
     public static App getApp() {
         return app;
     }
+
     public AndroidUtil getUtil() {
         return util;
     }
+
     @Override
     public void onCreate() {
         super.onCreate();
         app = this;
-        EasyJs easyJs = EasyJs.getIntance(this);
+        easyJs = EasyJs.getIntance(this);
         util = easyJs.getAppUtils();
     }
 }

@@ -7,6 +7,7 @@ import android.os.Bundle;
 
 import easyjs.com.easyjs.droidcommon.util.AndroidUtil;
 import easyjs.com.easyjs.droidcommon.util.ScreenMetrics;
+import easyjs.com.easyjs.service.AccessibilityService;
 
 /**
  * Created by faith on 2018/1/18.
@@ -32,6 +33,12 @@ public class EasyJs {
 
     public AndroidUtil getAppUtils() {
         return appUtils;
+    }
+
+    public void ensureAccessibilityServiceEnabled() {
+        if (!appUtils.isAccessibilityServiceEnabled(this.context, AccessibilityService.class)) {
+            appUtils.goToAccessibilitySetting(this.context);
+        }
     }
 
     protected Application getApplication() {

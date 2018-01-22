@@ -9,6 +9,8 @@ import android.os.Looper;
 import android.support.annotation.RequiresApi;
 import android.view.ViewConfiguration;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import easyjs.com.easyjs.droidcommon.util.ScreenMetrics;
 
 /**
@@ -107,27 +109,39 @@ public class GestureManager {
 //        return result.blockedGet();
 //    }
 
+    private void prepareLooperIfNeeded() {
+        if (Looper.myLooper() == null) {
+            Looper.prepare();
+        }
+    }
+
+
+    private void quitLoop() {
+        Looper looper = Looper.myLooper();
+        if (looper != null) {
+            looper.quit();
+        }
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     private boolean gesturesWithoutHandler(GestureDescription description) {
-//        prepareLooperIfNeeded();
-//        final VolatileBox<Boolean> result = new VolatileBox<>(false);
+        prepareLooperIfNeeded();
+        final AtomicBoolean result = new AtomicBoolean(false);
         Handler handler = new Handler(Looper.myLooper());
         service.dispatchGesture(description, new AccessibilityService.GestureResultCallback() {
             @Override
             public void onCompleted(GestureDescription gestureDescription) {
-//                result.set(true);
-//                quitLoop();
+                result.set(true);
+                quitLoop();
             }
 
             @Override
             public void onCancelled(GestureDescription gestureDescription) {
-//                result.set(false);
-//                quitLoop();
+                result.set(false);
+                quitLoop();
             }
         }, handler);
-        Looper.loop();
-//        return result.get();
-        return true;
+        return result.get();
     }
 
 }

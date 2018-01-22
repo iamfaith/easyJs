@@ -15,9 +15,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.google.common.base.Strings;
 import com.stardust.enhancedfloaty.FloatyService;
 import com.stardust.enhancedfloaty.ResizableFloatyWindow;
 import com.stardust.enhancedfloaty.util.FloatingWindowPermissionUtil;
@@ -34,7 +32,7 @@ import easyjs.com.easyjs.droidcommon.BaseActivity;
 import easyjs.com.easyjs.droidcommon.Define;
 import easyjs.com.easyjs.droidcommon.accessibility.GestureManager;
 import easyjs.com.easyjs.droidcommon.util.SQLiteUtil;
-import easyjs.com.easyjs.engine.service.AccessibilityService;
+import easyjs.com.easyjs.service.AccessibilityService;
 import easyjs.com.easyjs.floaty.SampleFloaty;
 import easyjs.com.easyjs.droidcommon.proxy.ProxyService;
 
@@ -203,7 +201,8 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
         switch (v.getId()) {
             case R.id.button:
                 initDb();
-                ProxyService.getInstance().installCert(this, true);
+                App.getApp().getEasyJs().ensureAccessibilityServiceEnabled();
+//                ProxyService.getInstance().installCert(this, true);
                 break;
             case R.id.button2:
                 FloatingWindowPermissionUtil.goToFloatingWindowPermissionSettingIfNeeded(this);

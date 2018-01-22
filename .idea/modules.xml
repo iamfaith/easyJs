@@ -6,7 +6,6 @@
       <module fileurl="file://$PROJECT_DIR$/common/common.iml" filepath="$PROJECT_DIR$/common/common.iml" />
       <module fileurl="file://$PROJECT_DIR$/droidcommon/droidcommon.iml" filepath="$PROJECT_DIR$/droidcommon/droidcommon.iml" />
       <module fileurl="file://$PROJECT_DIR$/easyJs.iml" filepath="$PROJECT_DIR$/easyJs.iml" />
-      <module fileurl="file://$PROJECT_DIR$/engine/engine.iml" filepath="$PROJECT_DIR$/engine/engine.iml" />
     </modules>
   </component>
 </project>

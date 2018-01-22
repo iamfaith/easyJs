@@ -13,9 +13,7 @@ import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.stardust.enhancedfloaty.FloatyService;
 import com.stardust.enhancedfloaty.ResizableFloaty;
@@ -23,16 +21,16 @@ import com.stardust.enhancedfloaty.ResizableFloatyWindow;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.File;
+import java.util.List;
 
-import easyjs.com.common.HttpUtil;
+import easyjs.com.easyjs.App;
 import easyjs.com.easyjs.EasyJs;
-import easyjs.com.easyjs.EasyJsActivity;
 import easyjs.com.easyjs.R;
+import easyjs.com.easyjs.application.wechatjump.Hack;
 import easyjs.com.easyjs.droidcommon.BaseActivity;
 import easyjs.com.easyjs.droidcommon.accessibility.GestureManager;
 import easyjs.com.easyjs.droidcommon.screencapture.ScreenCapturer;
-import easyjs.com.easyjs.engine.service.AccessibilityService;
+import easyjs.com.easyjs.service.AccessibilityService;
 
 /**
  * Created by faith on 2018/1/17.
@@ -111,8 +109,9 @@ public class SampleFloaty extends ResizableFloaty.AbstractResizableFloaty {
                 }
             }
         });
-        screenCapturer = ScreenCapturer.newInstance((BaseActivity) EasyJs.getIntance(context).getAppUtils().getCurrentActivity());
+        screenCapturer = ScreenCapturer.newInstance((BaseActivity) App.getApp().getUtil().getCurrentActivity());
         screenCapturer.setCaptureListener(new ScreenCapturer.OnCaptureListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onScreenCaptureSuccess(Bitmap bitmap, String savePath) {
                 if (savePath != null) {
@@ -128,7 +127,17 @@ public class SampleFloaty extends ResizableFloaty.AbstractResizableFloaty {
 //                    };
 //                    Thread thread = new Thread(runnable);
 //                    thread.start();
-
+                    Thread thread = new Thread(() -> {
+                        StringBuffer log = new StringBuffer(64);
+                        List<Integer> list = Hack.calPos(bitmap, log);
+                        updateText(log.toString());
+                        if (list.size() >= 3) {
+                            GestureManager gestureManager = new GestureManager();
+                            gestureManager.setService(AccessibilityService.getInstance());
+                            gestureManager.press(list.get(1), list.get(2), list.get(0));
+                        }
+                    });
+                    thread.start();
                 }
                 container.setVisibility(View.VISIBLE);
             }
@@ -163,9 +172,6 @@ public class SampleFloaty extends ResizableFloaty.AbstractResizableFloaty {
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onClick(View v) {
-//                GestureManager gestureManager = new GestureManager();
-//                gestureManager.setService(AccessibilityService.getInstance());
-//                gestureManager.press(100, 100, 1000);
                 if (screenCapturer != null) {
 //                    container.setVisibility(View.GONE);
                     screenCapturer.screenCapture();

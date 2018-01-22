@@ -109,6 +109,11 @@ public class ScreenCapturer {
         return new ScreenCapturer(activity);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public static ScreenCapturer newInstance() {
+        return new ScreenCapturer(new ScreenCaptureRequestActivity());
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public ScreenCapturer(BaseActivity activity) {
         this.mActivity = activity;
@@ -117,7 +122,8 @@ public class ScreenCapturer {
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void createEnvironment() {
-        mImagePath = mActivity.getExternalCacheDir() + "/ScreenCapture/screenshot/";
+        if (mImagePath == null)
+            mImagePath = mActivity.getExternalCacheDir() + "/ScreenCapture/screenshot/";
         mWindowManager = (WindowManager) mActivity.getSystemService(Context.WINDOW_SERVICE);
         mWindowWidth = ScreenMetrics.getDeviceScreenWidth(); //mWindowManager.getDefaultDisplay().getWidth();
         mWindowHeight = ScreenMetrics.getDeviceScreenHeight(); //mWindowManager.getDefaultDisplay().getHeight();

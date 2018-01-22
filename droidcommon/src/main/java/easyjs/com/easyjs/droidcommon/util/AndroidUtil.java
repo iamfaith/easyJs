@@ -1,13 +1,18 @@
 package easyjs.com.easyjs.droidcommon.util;
 
 import android.Manifest;
+import android.accessibilityservice.AccessibilityService;
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.os.Environment;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
+import android.text.TextUtils;
 import android.util.Log;
 
 import net.lightbody.bmp.BrowserMobProxyServer;
@@ -99,4 +104,30 @@ public class AndroidUtil {
             }
         });
     }
+
+    public static void goToAccessibilitySetting(Context context) {
+        context.startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+    }
+
+    public static boolean isAccessibilityServiceEnabled(Context context, Class<? extends AccessibilityService> accessibilityService) {
+        ComponentName expectedComponentName = new ComponentName(context, accessibilityService);
+
+        String enabledServicesSetting = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
+        if (enabledServicesSetting == null)
+            return false;
+
+        TextUtils.SimpleStringSplitter colonSplitter = new TextUtils.SimpleStringSplitter(':');
+        colonSplitter.setString(enabledServicesSetting);
+
+        while (colonSplitter.hasNext()) {
+            String componentNameString = colonSplitter.next();
+            ComponentName enabledService = ComponentName.unflattenFromString(componentNameString);
+
+            if (enabledService != null && enabledService.equals(expectedComponentName))
+                return true;
+        }
+
+        return false;
+    }
+
 }
