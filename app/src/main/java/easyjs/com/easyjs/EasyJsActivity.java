@@ -32,7 +32,9 @@ import java.util.Optional;
 import easyjs.com.easyjs.application.model.Question;
 import easyjs.com.easyjs.droidcommon.BaseActivity;
 import easyjs.com.easyjs.droidcommon.Define;
+import easyjs.com.easyjs.droidcommon.accessibility.GestureManager;
 import easyjs.com.easyjs.droidcommon.util.SQLiteUtil;
+import easyjs.com.easyjs.engine.service.AccessibilityService;
 import easyjs.com.easyjs.floaty.SampleFloaty;
 import easyjs.com.easyjs.droidcommon.proxy.ProxyService;
 
@@ -210,11 +212,14 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
                 break;
 
             case R.id.button3:
-                String qry = editText.getText().toString();
-                Optional<String> ansOpt = qryAns("", "", qry);
-                ansOpt.ifPresent(ans -> floatyWindow.updateText("标准答案:" + ans));
-                if (!ansOpt.isPresent())
-                    floatyWindow.updateText("没查到");
+                GestureManager gestureManager = new GestureManager();
+                gestureManager.setService(AccessibilityService.getInstance());
+                gestureManager.press(100,100, 1000);
+//                String qry = editText.getText().toString();
+//                Optional<String> ansOpt = qryAns("", "", qry);
+//                ansOpt.ifPresent(ans -> floatyWindow.updateText("标准答案:" + ans));
+//                if (!ansOpt.isPresent())
+//                    floatyWindow.updateText("没查到");
                 break;
             default:
                 break;
