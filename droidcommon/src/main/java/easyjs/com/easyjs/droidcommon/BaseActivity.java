@@ -48,10 +48,11 @@ public abstract class BaseActivity extends Activity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Define.IEventListener callback = callbacks.get(requestCode);
-        if (resultCode == Activity.RESULT_OK) {
-            callback.handleEvent(Define.EventCode.SUCCESS, null);
-        } else {
-            callback.handleEvent(Define.EventCode.CANCEL, Define.CallBackMsg.buildMsg(getString(R.string.user_cancel)));
-        }
+        if (callback != null)
+            if (resultCode == Activity.RESULT_OK) {
+                callback.handleEvent(Define.EventCode.SUCCESS, Define.CallBackMsg.buildPayload(resultCode, data));
+            } else {
+                callback.handleEvent(Define.EventCode.CANCEL, Define.CallBackMsg.buildMsg(getString(R.string.user_cancel)));
+            }
     }
 }

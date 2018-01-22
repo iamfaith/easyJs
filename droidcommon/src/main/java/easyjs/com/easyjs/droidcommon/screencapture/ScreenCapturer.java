@@ -5,10 +5,8 @@ package easyjs.com.easyjs.droidcommon.screencapture;
  */
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
@@ -22,12 +20,8 @@ import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.os.Build;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Surface;
 import android.view.WindowManager;
@@ -41,8 +35,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import easyjs.com.easyjs.droidcommon.BaseActivity;
 import easyjs.com.easyjs.droidcommon.Define;
 import easyjs.com.easyjs.droidcommon.permission.PermissionManager;
-import easyjs.com.easyjs.droidcommon.util.AndroidUtil;
 import easyjs.com.easyjs.droidcommon.util.ScreenMetrics;
+
+import static easyjs.com.easyjs.droidcommon.Define.RequestCode.REQUEST_MEDIA_PROJECTION;
 
 /**
  * Created by panj on 2017/5/22.
@@ -72,7 +67,6 @@ public class ScreenCapturer {
 
     private int mResultCode;
     private Intent mResultData;
-    private static final int REQUEST_MEDIA_PROJECTION = 1;
     private Bitmap mBitmap;
     private boolean isSaveImageEnable = true;
 
@@ -255,6 +249,19 @@ public class ScreenCapturer {
         } else {
             Log.d(TAG, "Requesting confirmation");
             // This initiates a prompt dialog for the user to confirm screen projection.
+            mActivity.registerCallback(REQUEST_MEDIA_PROJECTION, (eventCode, callBackMsg) -> {
+                if (eventCode != Define.EventCode.SUCCESS) {
+                    Log.w(TAG, "User cancelled.");
+                } else {
+                    mResultCode = callBackMsg.resultCode;
+                    mResultData = callBackMsg.data;
+                    if (isScreenshot) {
+                        screenCapture();
+                    } else {
+                        recordStart();
+                    }
+                }
+            });
             mActivity.startActivityForResult(
                     mMediaProjectionManager.createScreenCaptureIntent(),
                     REQUEST_MEDIA_PROJECTION);
@@ -294,7 +301,7 @@ public class ScreenCapturer {
                     }
                 } else {
                     if (isScreenshot) {
-                        saveToFile();
+                        saveToFileAsyn();
                     } else {
                         recordClick();
                     }
@@ -302,50 +309,33 @@ public class ScreenCapturer {
             }
         });
 
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            if (AndroidUtil.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-//                if (ActivityCompat.shouldShowRequestPermissionRationale(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-//                    mActivity.requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_SAVE_IMAGE_FILE);
-//                } else {
-//                    mActivity.requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_SAVE_IMAGE_FILE);
-//                }
-//                return;
-//            } else {
-//                if (isScreenshot) {
-//                    saveToFile();
-//                } else {
-//                    recordClick();
-//                }
-//            }
-//        } else {
-//            if (isScreenshot) {
-//                saveToFile();
-//            } else {
-//                recordClick();
-//            }
-//        }
+
     }
 
-    private void saveToFile() {
-        try {
-            File fileFolder = new File(mImagePath);
-            if (!fileFolder.exists())
-                fileFolder.mkdirs();
-            File file = new File(mImagePath, mImageName);
-            if (!file.exists()) {
+    private void saveToFileAsyn() {
+        Thread thread = new Thread(() -> {
+            try {
+                File fileFolder = new File(mImagePath);
+                if (!fileFolder.exists())
+                    fileFolder.mkdirs();
+                File file = new File(mImagePath, mImageName);
+                if (file.exists()) {
+                    file.delete();
+                }
                 file.createNewFile();
+                FileOutputStream out = new FileOutputStream(file);
+                mBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+                out.flush();
+                out.close();
+                if (mCaptureListener != null) {
+                    mCaptureListener.onScreenCaptureSuccess(mBitmap, file.getAbsolutePath());
+                }
+            } catch (IOException e) {
+                Log.e(TAG, e.toString());
+                e.printStackTrace();
             }
-            FileOutputStream out = new FileOutputStream(file);
-            mBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-            out.flush();
-            out.close();
-            if (mCaptureListener != null) {
-                mCaptureListener.onScreenCaptureSuccess(mBitmap, file.getAbsolutePath());
-            }
-        } catch (IOException e) {
-            Log.e(TAG, e.toString());
-            e.printStackTrace();
-        }
+        });
+        thread.start();
     }
 
     // record
@@ -519,26 +509,26 @@ public class ScreenCapturer {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d(TAG, "onActivityResult requestCode:" + requestCode + " resultCode:" + resultCode);
-        if (requestCode == REQUEST_MEDIA_PROJECTION) {
-            if (resultCode != Activity.RESULT_OK) {
-                Log.w(TAG, "User cancelled.");
-                return;
-            }
-            if (this == null) {
-                return;
-            }
-            mResultCode = resultCode;
-            mResultData = data;
-            if (isScreenshot) {
-                screenCapture();
-            } else {
-                recordStart();
-            }
-        }
-    }
+//    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        Log.d(TAG, "onActivityResult requestCode:" + requestCode + " resultCode:" + resultCode);
+//        if (requestCode == REQUEST_MEDIA_PROJECTION) {
+//            if (resultCode != Activity.RESULT_OK) {
+//                Log.w(TAG, "User cancelled.");
+//                return;
+//            }
+//            if (this == null) {
+//                return;
+//            }
+//            mResultCode = resultCode;
+//            mResultData = data;
+//            if (isScreenshot) {
+//                screenCapture();
+//            } else {
+//                recordStart();
+//            }
+//        }
+//    }
 
 //    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 //    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -549,7 +539,7 @@ public class ScreenCapturer {
 //                    // permission was granted, yay! Do the
 //                    // contacts-related task you need to do.
 //                    if (isScreenshot) {
-//                        saveToFile();
+//                        saveToFileAsyn();
 //                    } else {
 //                        recordClick();
 //                    }

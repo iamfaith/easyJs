@@ -134,7 +134,7 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
                 return false;
         });
         //安装证书
-        ProxyService.getInstance().installCert(this, false);
+//        ProxyService.getInstance().installCert(this, false);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -226,14 +226,14 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+//    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
 //        if (floatyWindow.getScreenCapturer() != null) {
 //            floatyWindow.getScreenCapturer().onActivityResult(requestCode, resultCode, data);
 //        }
-    }
+//    }
 
     /**
      * Handle permission here. Like Manifest.permission.WRITE_EXTERNAL_STORAGE

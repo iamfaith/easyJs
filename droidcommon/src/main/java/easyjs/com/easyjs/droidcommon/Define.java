@@ -1,6 +1,7 @@
 package easyjs.com.easyjs.droidcommon;
 
 import android.Manifest;
+import android.content.Intent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +17,7 @@ public class Define {
         public static final int READ_EXTERNAL_STORAGE = 3;
         public static final int INTERNET = 5;
         public static final int CERTFITICATE = 7;
+        public static final int REQUEST_MEDIA_PROJECTION = 9;
         public static final Map<String, Integer> map = new HashMap<>();
 
         static {
@@ -55,9 +57,18 @@ public class Define {
     public static class CallBackMsg {
         public Throwable error;
         public String msg;
+        public int resultCode;
+        public Intent data;
 
         private CallBackMsg() {
 
+        }
+
+        public static CallBackMsg buildPayload(int resultCode, Intent data) {
+            CallBackMsg callBackMsg = new CallBackMsg();
+            callBackMsg.resultCode = resultCode;
+            callBackMsg.data = data;
+            return callBackMsg;
         }
 
         public static CallBackMsg buildMsg(String msg) {

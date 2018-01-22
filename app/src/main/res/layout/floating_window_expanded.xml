@@ -5,6 +5,7 @@
     android:layout_height="wrap_content">
 
     <LinearLayout
+        android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="12dp"
@@ -92,7 +93,6 @@
         </LinearLayout>
 
         <ScrollView
-            android:id="@+id/container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@drawable/floating_window_bg">
