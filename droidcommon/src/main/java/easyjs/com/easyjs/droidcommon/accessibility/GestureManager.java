@@ -132,13 +132,13 @@ public class GestureManager {
             @Override
             public void onCompleted(GestureDescription gestureDescription) {
                 result.set(true);
-                quitLoop();
+//                quitLoop();
             }
 
             @Override
             public void onCancelled(GestureDescription gestureDescription) {
                 result.set(false);
-                quitLoop();
+//                quitLoop();
             }
         }, handler);
         return result.get();

@@ -6,6 +6,9 @@ import android.graphics.Bitmap;
 import android.graphics.Path;
 import android.graphics.PixelFormat;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.view.Gravity;
@@ -19,6 +22,10 @@ import android.widget.TextView;
 
 
 import java.util.List;
+import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import easyjs.com.easyjs.App;
 import easyjs.com.easyjs.EasyJs;
@@ -38,12 +45,43 @@ public class AccessibilityService extends android.accessibilityservice.Accessibi
     private static AccessibilityService instance;
     private static final String TAG = "AccessibilityService";
     FrameLayout mLayout;
+    private static AtomicBoolean isAuto = new AtomicBoolean(false);
+    private static AtomicBoolean isFininsh = new AtomicBoolean(false);
+    private Timer timer;
+    private TimerTask task;
 
     ScreenCapturer screenCapturer;
     TextView textView;
+    Button pressBtn;
+    private static Random RANDOM = new Random();
+
     public static AccessibilityService getInstance() {
         return instance;
     }
+
+    private static final int PRESS_BTN = 1;
+    private static final int AUTO_RUN = 2;
+
+    private final Handler handler = new Handler() {
+        @RequiresApi(api = Build.VERSION_CODES.N)
+        @Override
+        public void handleMessage(Message msg) {
+            if (msg.what == PRESS_BTN) {
+                Bundle list = msg.getData();
+                GestureManager gestureManager = new GestureManager();
+                gestureManager.setService(AccessibilityService.getInstance());
+                gestureManager.press(list.getInt("x"), list.getInt("y"), list.getInt("delay"));
+            } else if (msg.what == AUTO_RUN) {
+                if (isAuto.get() == false) {
+                    return;
+                }
+                if (isFininsh.get() == true) {
+                    pressBtn.performClick();
+                }
+
+            }
+        }
+    };
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
@@ -81,10 +119,34 @@ public class AccessibilityService extends android.accessibilityservice.Accessibi
         LayoutInflater inflater = LayoutInflater.from(this);
         inflater.inflate(R.layout.action_bar, mLayout);
         wm.addView(mLayout, lp);
+        textView = mLayout.findViewById(R.id.log);
+        pressBtn = mLayout.findViewById(R.id.press);
         configureSwipeButton();
         configurePressButton();
-        textView = mLayout.findViewById(R.id.log);
+        Button autoBtn = mLayout.findViewById(R.id.auto);
+        autoBtn.setOnClickListener(view -> {
+            if (isAuto.get() == false) {
+                autoBtn.setText(getResources().getString(R.string.stop));
+                isAuto.set(true);
 
+                task = new TimerTask() {
+                    @Override
+                    public void run() {
+                        Message msg = new Message();
+                        msg.what = AUTO_RUN;
+                        handler.sendMessage(msg);
+                    }
+                };
+                timer = new Timer();
+                timer.schedule(task, 0, 6000);
+            } else {
+                autoBtn.setText(getResources().getString(R.string.auto));
+                isAuto.set(false);
+
+                timer.cancel();
+                task.cancel();
+            }
+        });
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -97,17 +159,25 @@ public class AccessibilityService extends android.accessibilityservice.Accessibi
                 @Override
                 public void onScreenCaptureSuccess(Bitmap bitmap, String savePath) {
                     if (savePath != null) {
-                        Thread thread = new Thread(() -> {
+                        try {
                             StringBuffer log = new StringBuffer(64);
                             List<Integer> list = Hack.calPos(bitmap, log);
 //                            textView.setText(log.toString());
                             if (list.size() >= 3) {
-                                GestureManager gestureManager = new GestureManager();
-                                gestureManager.setService(AccessibilityService.getInstance());
-                                gestureManager.press(list.get(1), list.get(2), list.get(0));
+                                Message msg = new Message();
+                                msg.what = PRESS_BTN;
+                                Bundle data = new Bundle();
+                                data.putInt("x", list.get(1));
+                                data.putInt("y", list.get(2));
+                                data.putInt("delay", list.get(0));
+                                msg.setData(data);
+                                handler.sendMessage(msg);
                             }
-                        });
-                        thread.start();
+                        } catch (Exception e) {
+
+                        } finally {
+                            isFininsh.set(true);
+                        }
                     }
                 }
 
@@ -144,10 +214,13 @@ public class AccessibilityService extends android.accessibilityservice.Accessibi
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void configurePressButton() {
-        Button pressBtn = (Button) mLayout.findViewById(R.id.press);
         pressBtn.setOnClickListener(view -> {
-            if (screenCapturer != null) {
-                screenCapturer.screenCapture();
+            try {
+                if (screenCapturer != null) {
+                    screenCapturer.screenCapture();
+                }
+            } catch (Exception e) {
+
             }
         });
     }
