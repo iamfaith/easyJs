@@ -1,9 +1,25 @@
 package easyjs.com.easyjs;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.io.Files;
 
+import org.apache.commons.io.Charsets;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -45,5 +61,56 @@ public class ExampleUnitTest {
         System.out.println(question.getOptions());
 //        JSON.parseArray()
 //        data.get("options")
+    }
+
+
+    @Test
+    public void testSqlite() {
+        File file = new File("/Users/faith/AndroidStudioProjects/easyJs/app/src/main/assets/data/data.txt");
+        try (Connection connection = DriverManager.getConnection("jdbc:sqlite:/Users/faith/AndroidStudioProjects/easyJs/app/src/main/assets/data/data.db")) {
+
+            try (FileInputStream inputStream = new FileInputStream(file)) {
+                String content = IOUtils.toString(inputStream);
+                // do something with everything string
+                if (!StringUtils.isEmpty(content)) {
+
+                    for (String line : content.split("@")) {
+                        String[] quiz = line.split("\\$");
+                        String question = quiz[0];
+                        String ans = quiz[1];
+                        ans = JSON.parseObject(ans).getString("a");
+                        Boolean isNeedInsert = true;
+                        try (PreparedStatement preparedStatement = connection.prepareStatement("select answer from questions where quiz like ?")) {
+                            preparedStatement.setString(1, question);
+                            ResultSet resultSet = preparedStatement.executeQuery();
+                            while (resultSet.next()) {
+                                isNeedInsert = false;
+                                String answer = resultSet.getString("answer");
+//                                if (!ans.equals(answer))
+//                                    System.out.println(question + "--" + answer + " --" + ans);
+                            }
+                            resultSet.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        if (isNeedInsert) {
+                            try (PreparedStatement insert = connection.prepareStatement("insert into questions(quiz, answer, school, type, options) values(?,?, '1', '2', '3')")) {
+                                insert.setString(1, question);
+                                insert.setString(2, ans);
+                                System.out.println(insert.executeUpdate() + " " + question + " --" + ans);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                    }
+                }
+            }
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

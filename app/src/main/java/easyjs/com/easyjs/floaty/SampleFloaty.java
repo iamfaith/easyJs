@@ -44,11 +44,7 @@ public class SampleFloaty extends ResizableFloaty.AbstractResizableFloaty {
     private String name;
     private Button button;
     Context context;
-    ScreenCapturer screenCapturer;
 
-    public ScreenCapturer getScreenCapturer() {
-        return screenCapturer;
-    }
 
     public SampleFloaty(String btnName, Context context) {
         this.name = btnName;
@@ -98,86 +94,29 @@ public class SampleFloaty extends ResizableFloaty.AbstractResizableFloaty {
             }
         });
         textView = view.findViewById(R.id.textView);
-        final LinearLayout container = view.findViewById(R.id.container);
-        view.findViewById(R.id.hide).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (container.getVisibility() == View.VISIBLE) {
-                    container.setVisibility(View.GONE);
-                } else {
-                    container.setVisibility(View.VISIBLE);
-                }
-            }
-        });
-        screenCapturer = ScreenCapturer.newInstance((BaseActivity) App.getApp().getUtil().getCurrentActivity());
-        screenCapturer.setCaptureListener(new ScreenCapturer.OnCaptureListener() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
-            @Override
-            public void onScreenCaptureSuccess(Bitmap bitmap, String savePath) {
-                if (savePath != null) {
-//                    final File screenShot = new File("/sdcard/1.png");
-//                    final String url = "http://api.happyocr.com/send";
-//
-//                    Runnable runnable = new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            String respStr = HttpUtil.getInstance().postFile(url, screenShot);
-//                            updateText(respStr);
-//                        }
-//                    };
-//                    Thread thread = new Thread(runnable);
-//                    thread.start();
-                    Thread thread = new Thread(() -> {
-                        StringBuffer log = new StringBuffer(64);
-                        List<Integer> list = Hack.calPos(bitmap, log);
-                        updateText(log.toString());
-                        if (list.size() >= 3) {
-                            GestureManager gestureManager = new GestureManager();
-                            gestureManager.setService(AccessibilityService.getInstance());
-                            gestureManager.press(list.get(1), list.get(2), list.get(0));
-                        }
-                    });
-                    thread.start();
-                }
-                container.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onScreenCaptureFailed(String errorMsg) {
-                container.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onScreenRecordStart() {
-            }
-
-            @Override
-            public void onScreenRecordStop() {
-            }
-
-            @Override
-            public void onScreenRecordSuccess(String savePath) {
-            }
-
-            @Override
-            public void onScreenRecordFailed(String errorMsg) {
-            }
-        });
-        screenCapturer.setImagePath("/sdcard", "1.png");
-
-        button = view.findViewById(R.id.button);
-        button.setText(name);
-        button.setOnClickListener(new View.OnClickListener() {
-            @TargetApi(Build.VERSION_CODES.N)
-            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-            @Override
-            public void onClick(View v) {
-                if (screenCapturer != null) {
+//        final LinearLayout container = view.findViewById(R.id.container);
+//        view.findViewById(R.id.hide).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (container.getVisibility() == View.VISIBLE) {
 //                    container.setVisibility(View.GONE);
-                    screenCapturer.screenCapture();
-                }
-            }
-        });
+//                } else {
+//                    container.setVisibility(View.VISIBLE);
+//                }
+//            }
+//        });
+//
+//
+//        button = view.findViewById(R.id.button);
+//        button.setText(name);
+//        button.setOnClickListener(new View.OnClickListener() {
+//            @TargetApi(Build.VERSION_CODES.N)
+//            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+//            @Override
+//            public void onClick(View v) {
+//
+//            }
+//        });
         return view;
     }
 

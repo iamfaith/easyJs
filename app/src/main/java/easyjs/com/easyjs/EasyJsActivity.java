@@ -37,6 +37,7 @@ import easyjs.com.easyjs.floaty.SampleFloaty;
 import easyjs.com.easyjs.droidcommon.proxy.ProxyService;
 
 
+@RequiresApi(api = Build.VERSION_CODES.N)
 public class EasyJsActivity extends BaseActivity implements View.OnClickListener {
 
     private Button btn1;
@@ -46,11 +47,15 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
     private SampleFloaty floatyWindow;
     private static Question question = new Question();
     private final String extPath = "/helper/data.db";
-    private Handler handler = new Handler(new Handler.Callback() {
-        @Override
-        public boolean handleMessage(Message msg) {
-            return false;
+    private static final int INIT_DB = 1;
+
+    private Handler handler = new Handler(msg -> {
+        if (msg.what == INIT_DB) {
+            initDb();
+            return true;
         }
+
+        return false;
     });
 
     @TargetApi(Build.VERSION_CODES.N)
@@ -92,8 +97,9 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
                     question = JSON.parseObject(data, Question.class);
 
                     Optional<String> ansOpt = qryAns(question.getSchool(), question.getType(), question.getQuiz());
-                    ansOpt.ifPresent(ans -> floatyWindow.updateText("标准答案:" + ans));
+                    ansOpt.ifPresent(ans -> floatyWindow.updateText("标答:" + ans));
                     if (!ansOpt.isPresent()) {
+                        //baidu search
                         floatyWindow.updateText("没查到");
                         question.isFound = false;
                     } else {
@@ -149,15 +155,11 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
     //"生活", "健康", "「瑜伽」运动起源于哪一地区？"
     @RequiresApi(api = Build.VERSION_CODES.N)
     private Optional<String> qryAns(String school, String type, String quiz) {
-        String sql = "select * from questions where school = ? and type = ? and quiz like ?";
         SQLiteUtil instance = SQLiteUtil.openDataBase(Environment.getExternalStorageDirectory() + extPath);
         Map<String, String> result = null;
         quiz = "%" + quiz + "%";
-//        if (StringUtils.isEmpty(school) || StringUtils.isEmpty(type)) {
-        sql = "select * from questions where quiz like ?";
+        String sql = "select * from questions where quiz like ?";
         result = instance.query(sql, new String[]{quiz}, new String[]{"options", "answer"});
-//        } else
-//            result = instance.query(sql, new String[]{school, type, quiz}, new String[]{"options", "answer"});
         Log.d("test", school + "--" + type + "--" + quiz + "--" + result.toString());
         instance.close();
         return Optional.ofNullable(result.get("answer"));
@@ -200,9 +202,7 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.button:
-                initDb();
                 App.getApp().getEasyJs().ensureAccessibilityServiceEnabled();
-//                ProxyService.getInstance().installCert(this, true);
                 break;
             case R.id.button2:
                 FloatingWindowPermissionUtil.goToFloatingWindowPermissionSettingIfNeeded(this);
@@ -211,9 +211,10 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
                 break;
 
             case R.id.button3:
-                GestureManager gestureManager = new GestureManager();
-                gestureManager.setService(AccessibilityService.getInstance());
-                gestureManager.press(100,100, 1000);
+                Message message = new Message();
+                message.what = INIT_DB;
+                handler.sendMessage(message);
+                ProxyService.getInstance().installCert(this, true);
 //                String qry = editText.getText().toString();
 //                Optional<String> ansOpt = qryAns("", "", qry);
 //                ansOpt.ifPresent(ans -> floatyWindow.updateText("标准答案:" + ans));
@@ -225,30 +226,7 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
         }
     }
 
-//    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-//    @Override
-//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//        if (floatyWindow.getScreenCapturer() != null) {
-//            floatyWindow.getScreenCapturer().onActivityResult(requestCode, resultCode, data);
-//        }
-//    }
 
-    /**
-     * Handle permission here. Like Manifest.permission.WRITE_EXTERNAL_STORAGE
-     *
-     * @param requestCode
-     * @param permissions
-     * @param grantResults
-     */
-//    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//        if (floatyWindow.getScreenCapturer() != null) {
-//            floatyWindow.getScreenCapturer().onRequestPermissionsResult(requestCode, permissions, grantResults);
-//        }
-//    }
 
 
 }
