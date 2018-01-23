@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import easyjs.com.easyjs.application.model.Question;
+import easyjs.com.easyjs.application.question.SearchEngine;
 
 import static org.junit.Assert.*;
 
@@ -61,6 +62,15 @@ public class ExampleUnitTest {
         System.out.println(question.getOptions());
 //        JSON.parseArray()
 //        data.get("options")
+    }
+
+    @Test
+    public void testSearch() {
+        List<String> list = new ArrayList<>();
+        list.add("甲醛");
+        list.add("甲醇");
+        list.add("苯");
+        SearchEngine.baiduSearch("新装修的房子通常哪种化学物质含量会比较高", list);
     }
 
 

@@ -2,7 +2,10 @@ package easyjs.com.common;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
+import okhttp3.Callback;
+import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -13,6 +16,7 @@ import okhttp3.Response;
 public class HttpUtil {
 
     private OkHttpClient client;
+
     private HttpUtil() {
         client = new OkHttpClient();
     }
@@ -47,5 +51,23 @@ public class HttpUtil {
                 .build();
         Request request = new Request.Builder().url(url).post(formBody).build();
         return request;
+    }
+
+    public String get(String url, Map<String, String> params) {
+        HttpUrl.Builder httpBuider = HttpUrl.parse(url).newBuilder();
+        if (params != null) {
+            for (Map.Entry<String, String> param : params.entrySet()) {
+                httpBuider.addQueryParameter(param.getKey(), param.getValue());
+            }
+        }
+        Request request = new Request.Builder().url(httpBuider.build()).build();
+        try {
+            Response response = client.newCall(request).execute();
+            String respStr = response.body().string();
+            return respStr;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "";
+        }
     }
 }

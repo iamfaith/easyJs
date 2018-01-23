@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import easyjs.com.easyjs.application.model.Question;
+import easyjs.com.easyjs.application.question.SearchEngine;
 import easyjs.com.easyjs.droidcommon.BaseActivity;
 import easyjs.com.easyjs.droidcommon.Define;
 import easyjs.com.easyjs.droidcommon.accessibility.GestureManager;
@@ -48,7 +49,7 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
     private static Question question = new Question();
     private final String extPath = "/helper/data.db";
     private static final int INIT_DB = 1;
-
+    private final String TAG = this.getClass().getName();
     private Handler handler = new Handler(msg -> {
         if (msg.what == INIT_DB) {
             initDb();
@@ -74,25 +75,26 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
 
             @Override
             public void OnCertInstallFail(Define.CallBackMsg errMsg) {
-                Log.d("ProxyService", "install cert fail");
+                Log.d(TAG, "install cert fail");
             }
 
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void OnProxyStartSuccess() {
                 ProxyService.getInstance().checkProxyData();
-                Log.d("ProxyService", "proxy success");
+                Log.d(TAG, "proxy success");
             }
 
             @Override
             public void OnDataReceive(HarEntry harEntry) {
                 String url = harEntry.getRequest().getUrl();
+                String respStr = harEntry.getResponse().getContent().getText();
+                if (StringUtils.isEmpty(respStr))
+                    return;
+                Log.d(TAG, respStr);
                 //问题
                 if (url.contains("findQuiz")) {
-                    String respStr = harEntry.getResponse().getContent().getText();
-                    if (StringUtils.isEmpty(respStr))
-                        return;
-                    Log.d("JSON", respStr);
+                    Log.d(TAG, respStr);
                     String data = JSON.parseObject(respStr).getString("data");
                     question = JSON.parseObject(data, Question.class);
 
@@ -100,24 +102,22 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
                     ansOpt.ifPresent(ans -> floatyWindow.updateText("标答:" + ans));
                     if (!ansOpt.isPresent()) {
                         //baidu search
-                        floatyWindow.updateText("没查到");
+                        String searchRet = SearchEngine.baiduSearch(question.getQuiz(), question.getOptions());
+                        floatyWindow.updateText("百度:" + searchRet);
                         question.isFound = false;
                     } else {
                         question.isFound = true;
                     }
                 } else if (url.contains("choose")) {
-                    String respStr = harEntry.getResponse().getContent().getText();
-                    if (StringUtils.isEmpty(respStr))
-                        return;
                     JSONObject object = JSON.parseObject(respStr);
                     if (object == null)
                         return;
                     String dataStr = object.getString("data");
                     Map<String, Object> data = JSON.parseObject(dataStr, Map.class);
                     int ansNum = (int) data.get("answer");
-                    question.setAnswer(ansNum + question.getOptions().get(ansNum));
+                    question.setAnswer(ansNum + question.getOptions().get(ansNum - 1));
                     int num = (data.get("num") instanceof Integer ? (int) data.get("num") : Integer.parseInt((String) data.get("num")));
-                    Log.d("JSON", num + "--" + dataStr + "--" + question);
+                    Log.d(TAG, num + "--" + dataStr + "--" + question);
                     try {
                         if (question.isFound == false && question.num == num) {
                             instertQuestion(question);
