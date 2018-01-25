@@ -37,6 +37,16 @@
 -keepattributes Signature        #不混淆泛型
 -keepnames class * implements java.io.Serializable #不混淆Serializable
 
+-assumenosideeffects class android.util.Log {
+    public static *** v(...);
+    public static *** i(...);
+    public static *** d(...);
+    public static *** w(...);
+    public static *** e(...);
+}
+
+-keep class easyjs.com.easyjs.BuildConfig { *; }
+
 -keepclassmembers class **.R$* { #不混淆资源类
     public static <fields>;
 }
