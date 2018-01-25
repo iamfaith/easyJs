@@ -90,14 +90,8 @@
 -dontwarn io.netty.internal.tcnative.**
 -keep class io.netty.internal.tcnative.** { *; }
 
--dontwarn java.awt.**
--keep class java.awt.** { *; }
-
--dontwarn java.beans.**
--keep class java.beans.** { *; }
-
--dontwarn java.lang.**
--keep class java.lang.** { *; }
+-dontwarn java.**
+-keep class java.** { *; }
 
 -dontwarn javax.naming.directory.**
 -keep class javax.naming.directory.** { *; }
@@ -116,3 +110,6 @@
 -dontwarn com.squareup.okhttp3.**
 -keep class com.squareup.okhttp3.** { *;}
 -dontwarn okio.**
+
+#model
+-keep class easyjs.com.easyjs.application.model.** { *;}

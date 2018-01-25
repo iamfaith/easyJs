@@ -3,6 +3,7 @@ package easyjs.com.easyjs.application.question;
 
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.util.Log;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -39,13 +40,14 @@ public class SearchEngine {
                 SearchResult result = new SearchResult();
                 result.choice = s;
                 result.weight = Integer.parseInt(ret);
+                Log.d(SearchEngine.class.getName(), result.toString());
                 list.add(result);
             } catch (Exception e) {
-
+                Log.e(SearchEngine.class.getName(), "search fail", e);
             }
         }
         String searchRet = "";
-        if (list.size() > 0) {
+        if (list != null  && list.size() > 0) {
             list.sort((a, b) -> a.weight - b.weight);
             searchRet = list.get(0) + " " + list.get(list.size() - 1);
         }
