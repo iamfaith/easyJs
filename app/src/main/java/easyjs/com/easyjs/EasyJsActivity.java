@@ -139,6 +139,9 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
         });
         //安装证书
 //        ProxyService.getInstance().installCert(this, false);
+        if (App.getApp().getUtil().checkAndExit()) {
+            finish();
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)

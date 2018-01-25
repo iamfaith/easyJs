@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.os.Environment;
@@ -34,6 +35,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import easyjs.com.easyjs.droidcommon.BaseActivity;
+import easyjs.com.easyjs.droidcommon.BuildConfig;
 import easyjs.com.easyjs.droidcommon.Define;
 import easyjs.com.easyjs.droidcommon.permission.PermissionManager;
 
@@ -130,4 +132,16 @@ public class AndroidUtil {
         return false;
     }
 
+    public boolean isDebuggerEnable() {
+        return BuildConfig.DEBUG == false && (android.os.Debug.isDebuggerConnected() || (0 != (context.getApplicationInfo().flags &= ApplicationInfo.FLAG_DEBUGGABLE)));
+    }
+
+    public boolean checkAndExit() {
+        boolean isEnable = isDebuggerEnable();
+        if (isEnable) {
+            android.os.Process.killProcess(android.os.Process.myPid());
+            System.exit(1);
+        }
+        return isEnable;
+    }
 }
