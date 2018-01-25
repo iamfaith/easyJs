@@ -142,6 +142,7 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
         if (App.getApp().getUtil().checkAndExit()) {
             finish();
         }
+        Toast.makeText(EasyJsActivity.this, App.getApp().getUtil().getSignature(), Toast.LENGTH_SHORT).show();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)

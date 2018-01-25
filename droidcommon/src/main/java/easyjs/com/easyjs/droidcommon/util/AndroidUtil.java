@@ -7,7 +7,9 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.content.res.AssetManager;
 import android.os.Environment;
 import android.provider.Settings;
@@ -34,6 +36,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import easyjs.com.common.SecurityUtil;
 import easyjs.com.easyjs.droidcommon.BaseActivity;
 import easyjs.com.easyjs.droidcommon.BuildConfig;
 import easyjs.com.easyjs.droidcommon.Define;
@@ -143,5 +146,23 @@ public class AndroidUtil {
             System.exit(1);
         }
         return isEnable;
+    }
+
+    public String getSignature() {
+        PackageManager pm = context.getPackageManager();
+        PackageInfo pi;
+        StringBuilder sb = new StringBuilder();
+
+        try {
+            pi = pm.getPackageInfo(context.getPackageName(), PackageManager.GET_SIGNATURES);
+            Signature[] signatures = pi.signatures;
+            for (Signature signature : signatures) {
+                sb.append(signature.toCharsString());
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        String md5 = SecurityUtil.encryptionMD5(sb.toString().getBytes());
+        return md5;
     }
 }
