@@ -142,10 +142,14 @@ public class AndroidUtil {
     public boolean checkAndExit() {
         boolean isEnable = isDebuggerEnable();
         if (isEnable) {
-            android.os.Process.killProcess(android.os.Process.myPid());
-            System.exit(1);
+            exitProcess();
         }
         return isEnable;
+    }
+
+    public void exitProcess() {
+        android.os.Process.killProcess(android.os.Process.myPid());
+        System.exit(1);
     }
 
     public String getSignature() {

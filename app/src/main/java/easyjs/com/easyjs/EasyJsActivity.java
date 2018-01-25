@@ -29,6 +29,7 @@ import java.util.Optional;
 
 import easyjs.com.easyjs.application.model.Question;
 import easyjs.com.easyjs.application.question.SearchEngine;
+import easyjs.com.easyjs.common.SignatureChecker;
 import easyjs.com.easyjs.droidcommon.BaseActivity;
 import easyjs.com.easyjs.droidcommon.Define;
 import easyjs.com.easyjs.droidcommon.accessibility.GestureManager;
@@ -142,8 +143,11 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
         if (App.getApp().getUtil().checkAndExit()) {
             finish();
         }
-        Toast.makeText(EasyJsActivity.this, App.getApp().getUtil().getSignature(), Toast.LENGTH_SHORT).show();
-        Log.d(TAG, App.getApp().getUtil().getSignature());
+//        Toast.makeText(EasyJsActivity.this, App.getApp().getUtil().getSignature(), Toast.LENGTH_SHORT).show();
+        Log.d(TAG, App.getApp().getUtil().getSignature() + "--" + BuildConfig.appSinature);
+        if (!SignatureChecker.check()) {
+            finish();
+        }
 
     }
 
