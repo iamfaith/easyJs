@@ -8,3 +8,4 @@
 /captures
 .externalNativeBuild
 **/.idea/workspace.xml **/.idea/tasks.xml
+keystore.properties
