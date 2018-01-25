@@ -25,7 +25,7 @@ import easyjs.com.easyjs.droidcommon.R;
 /**
  * Created by faith on 2018/1/17.
  */
-
+@Deprecated
 public class VPNService extends VpnService
 {
     private static final String TAG = VPNService.class.getSimpleName();

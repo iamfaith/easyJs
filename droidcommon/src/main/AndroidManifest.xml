@@ -8,5 +8,4 @@
     <application>
         <activity android:name="easyjs.com.easyjs.droidcommon.screencapture.ScreenCaptureRequestActivity"></activity>
     </application>
-    <uses-permission android:name="android.permission.INTERNET"/>
 </manifest>
