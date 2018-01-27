@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
@@ -45,7 +44,6 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
     private Button btn1;
     private Button btn2;
     private Button btn3;
-    private EditText editText;
     private SampleFloaty floatyWindow;
     private static Question question = new Question();
     private final String extPath = "/helper/data.db";
@@ -68,76 +66,79 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
         setContentView(R.layout.activity_easy_js);
         initView();
         floatyWindow = new SampleFloaty("test", getApplicationContext());
-        ProxyService.getInstance().startProxy(this, new ProxyService.OnProxyListener() {
-            @Override
-            public void OnProxyStartFail(Define.CallBackMsg errMsg) {
-                Toast.makeText(EasyJsActivity.this, errMsg.msg, Toast.LENGTH_SHORT).show();
-            }
+        if (ProxyService.getInstance().isProxyRunning() == false) {
+            Log.d(TAG, "start proxy !!!!!!!");
+            ProxyService.getInstance().startProxy(this, new ProxyService.OnProxyListener() {
+                @Override
+                public void OnProxyStartFail(Define.CallBackMsg errMsg) {
+                    Toast.makeText(EasyJsActivity.this, errMsg.msg, Toast.LENGTH_SHORT).show();
+                }
 
-            @Override
-            public void OnCertInstallFail(Define.CallBackMsg errMsg) {
-                Log.d(TAG, "install cert fail");
-            }
+                @Override
+                public void OnCertInstallFail(Define.CallBackMsg errMsg) {
+                    Log.d(TAG, "install cert fail");
+                }
 
-            @RequiresApi(api = Build.VERSION_CODES.N)
-            @Override
-            public void OnProxyStartSuccess() {
-                ProxyService.getInstance().checkProxyData();
-                Log.d(TAG, "proxy success");
-            }
+                @RequiresApi(api = Build.VERSION_CODES.N)
+                @Override
+                public void OnProxyStartSuccess() {
+                    ProxyService.getInstance().checkProxyData();
+                    Log.d(TAG, "proxy success");
+                }
 
-            @Override
-            public void OnDataReceive(HarEntry harEntry) {
-                String url = harEntry.getRequest().getUrl();
-                String respStr = harEntry.getResponse().getContent().getText();
-                if (StringUtils.isEmpty(respStr))
-                    return;
-                Log.d(TAG, respStr);
-                //问题
-                if (url.contains("findQuiz")) {
-                    Log.d(TAG, respStr);
-                    String data = JSON.parseObject(respStr).getString("data");
-                    question = JSON.parseObject(data, Question.class);
-
-                    Optional<String> ansOpt = qryAns(question.getSchool(), question.getType(), question.getQuiz());
-                    ansOpt.ifPresent(ans -> floatyWindow.updateText("标答:" + ans));
-                    if (!ansOpt.isPresent()) {
-                        //baidu search
-                        String searchRet = SearchEngine.baiduSearch(question.getQuiz(), question.getOptions());
-                        floatyWindow.updateText("百度:" + searchRet);
-                        question.isFound = false;
-                    } else {
-                        question.isFound = true;
-                    }
-                } else if (url.contains("choose")) {
-                    JSONObject object = JSON.parseObject(respStr);
-                    if (object == null)
+                @Override
+                public void OnDataReceive(HarEntry harEntry) {
+                    String url = harEntry.getRequest().getUrl();
+                    String respStr = harEntry.getResponse().getContent().getText();
+                    if (StringUtils.isEmpty(respStr))
                         return;
-                    String dataStr = object.getString("data");
-                    Map<String, Object> data = JSON.parseObject(dataStr, Map.class);
-                    int ansNum = (int) data.get("answer");
-                    question.setAnswer(ansNum + question.getOptions().get(ansNum - 1));
-                    int num = (data.get("num") instanceof Integer ? (int) data.get("num") : Integer.parseInt((String) data.get("num")));
-                    Log.d(TAG, num + "--" + dataStr + "--" + question);
-                    try {
-                        if (question.isFound == false && question.num == num) {
-                            instertQuestion(question);
-                        } else {
-                            //答案 update database
-                            updateQuestion(question);
-                        }
-                    } catch (Exception e) {
+                    Log.d(TAG, respStr);
+                    //问题
+                    if (url.contains("findQuiz")) {
+                        Log.d(TAG, respStr);
+                        String data = JSON.parseObject(respStr).getString("data");
+                        question = JSON.parseObject(data, Question.class);
 
+                        Optional<String> ansOpt = qryAns(question.getSchool(), question.getType(), question.getQuiz());
+                        ansOpt.ifPresent(ans -> floatyWindow.updateText("标答:" + ans));
+                        if (!ansOpt.isPresent()) {
+                            //baidu search
+                            String searchRet = SearchEngine.baiduSearch(question.getQuiz(), question.getOptions());
+                            floatyWindow.updateText("百度:" + searchRet);
+                            question.isFound = false;
+                        } else {
+                            question.isFound = true;
+                        }
+                    } else if (url.contains("choose")) {
+                        JSONObject object = JSON.parseObject(respStr);
+                        if (object == null)
+                            return;
+                        String dataStr = object.getString("data");
+                        Map<String, Object> data = JSON.parseObject(dataStr, Map.class);
+                        int ansNum = (int) data.get("answer");
+                        question.setAnswer(ansNum + question.getOptions().get(ansNum - 1));
+                        int num = (data.get("num") instanceof Integer ? (int) data.get("num") : Integer.parseInt((String) data.get("num")));
+                        Log.d(TAG, num + "--" + dataStr + "--" + question);
+                        try {
+                            if (question.isFound == false && question.num == num) {
+                                instertQuestion(question);
+                            } else {
+                                //答案 update database
+                                updateQuestion(question);
+                            }
+                        } catch (Exception e) {
+
+                        }
                     }
                 }
-            }
 
-        }, url -> {
-            if (url.contains("https") && url.contains("question.hortor.net")) {
-                return true;
-            } else
-                return false;
-        });
+            }, url -> {
+                if (url.contains("https") && url.contains("question.hortor.net")) {
+                    return true;
+                } else
+                    return false;
+            });
+        }
         //安装证书
 //        ProxyService.getInstance().installCert(this, false);
         if (App.getApp().getUtil().checkAndExit()) {
@@ -203,7 +204,6 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
         //按钮绑定点击事件的监听器
         btn3.setOnClickListener(this);
 
-        editText = findViewById(R.id.editText);
     }
 
     @TargetApi(Build.VERSION_CODES.N)
@@ -235,8 +235,6 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
                 break;
         }
     }
-
-
 
 
 }

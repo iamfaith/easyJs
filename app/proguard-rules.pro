@@ -28,6 +28,8 @@
 -ignorewarning                   # 忽略警告
 -dontoptimize                    # 优化不优化输入的类文件
 
+-obfuscationdictionary dictionary.txt
+
 -optimizations !code/simplification/arithmetic,!field/*,!class/merging/*  # 混淆时所采用的算法
 
 -keep public class * extends android.support.** #如果有引用v4或者v7包，需添加

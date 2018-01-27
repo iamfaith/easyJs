@@ -25,7 +25,7 @@
             android:id="@+id/button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="初始化" />
+            android:text="打开无障碍" />
 
         <Button
             android:id="@+id/button2"
@@ -39,11 +39,11 @@
             android:layout_height="wrap_content"
             android:text="安装证书" />
 
-        <EditText
-            android:id="@+id/editText"
-            android:inputType="text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+        <!--<EditText-->
+            <!--android:id="@+id/editText"-->
+            <!--android:inputType="text"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content" />-->
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>
