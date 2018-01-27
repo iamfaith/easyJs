@@ -8,7 +8,7 @@
 //#define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 #define  Log(...)   if(LOG_ENABLE == 1) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
-const char *APP_SIGNATURE = "a516700ce0fb40e35295befbcbbfdfed";
+const char *APP_SIGNATURE = "0BF97AE625BF2D7FC2BA965C9836EC18";
 
 void ByteToHexStr(const char *source, char *dest, int sourceLen) {
     short i;
