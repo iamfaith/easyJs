@@ -26,6 +26,10 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Map;
 import java.util.Optional;
 
+import abc.abc.abc.AdManager;
+import abc.abc.abc.nm.cm.ErrorCode;
+import abc.abc.abc.nm.sp.SpotListener;
+import abc.abc.abc.nm.sp.SpotManager;
 import easyjs.com.easyjs.application.model.Question;
 import easyjs.com.easyjs.application.question.SearchEngine;
 import easyjs.com.easyjs.common.SignatureChecker;
@@ -57,6 +61,11 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
 
         return false;
     });
+
+    @Override
+    protected String getTAG() {
+        return TAG;
+    }
 
     @TargetApi(Build.VERSION_CODES.N)
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -150,6 +159,76 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
             finish();
         }
 
+        AdManager.getInstance(context).init(BuildConfig.appId, BuildConfig.appSecret, true);
+        setupSpotAd();
+    }
+
+    /**
+     * 设置插屏广告
+     */
+    private void setupSpotAd() {
+        // 设置插屏图片类型，默认竖图
+        //		// 横图
+        //		SpotManager.getInstance(mContext).setImageType(SpotManager
+        // .IMAGE_TYPE_HORIZONTAL);
+        // 竖图
+        SpotManager.getInstance(context).setImageType(SpotManager.IMAGE_TYPE_VERTICAL);
+
+        // 设置动画类型，默认高级动画
+        //		// 无动画
+        //		SpotManager.getInstance(context).setAnimationType(SpotManager
+        //				.ANIMATION_TYPE_NONE);
+        //		// 简单动画
+        //		SpotManager.getInstance(context)
+        //		                    .setAnimationType(SpotManager.ANIMATION_TYPE_SIMPLE);
+        // 高级动画
+        SpotManager.getInstance(context)
+                .setAnimationType(SpotManager.ANIMATION_TYPE_ADVANCED);
+
+        // 展示插屏广告
+        SpotManager.getInstance(context).showSpot(context, new SpotListener() {
+
+            @Override
+            public void onShowSuccess() {
+                logInfo("插屏展示成功");
+            }
+
+            @Override
+            public void onShowFailed(int errorCode) {
+                logError("插屏展示失败");
+                switch (errorCode) {
+                    case ErrorCode.NON_NETWORK:
+                        showShortToast("网络异常");
+                        break;
+                    case ErrorCode.NON_AD:
+                        showShortToast("暂无插屏广告");
+                        break;
+                    case ErrorCode.RESOURCE_NOT_READY:
+                        showShortToast("插屏资源还没准备好");
+                        break;
+                    case ErrorCode.SHOW_INTERVAL_LIMITED:
+                        showShortToast("请勿频繁展示");
+                        break;
+                    case ErrorCode.WIDGET_NOT_IN_VISIBILITY_STATE:
+                        showShortToast("请设置插屏为可见状态");
+                        break;
+                    default:
+                        showShortToast("请稍后再试");
+                        break;
+                }
+            }
+
+            @Override
+            public void onSpotClosed() {
+                logDebug("插屏被关闭");
+            }
+
+            @Override
+            public void onSpotClicked(boolean isWebPage) {
+                logDebug("插屏被点击");
+                logInfo("是否是网页广告？%s", isWebPage ? "是" : "不是");
+            }
+        });
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
