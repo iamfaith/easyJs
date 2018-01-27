@@ -29,7 +29,14 @@ android {
         versionName rootProject.ext.versionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         resValue "string", "app_name", "easyJs"   // 设置默认的app_name
+
+        externalNativeBuild {
+            cmake {
+                cppFlags ""
+            }
+        }
     }
+
     buildTypes {
         debug {
             // VersionName后缀
@@ -39,6 +46,12 @@ android {
 
             buildConfigField("String", "appId", keystoreProperties['appId'])
             buildConfigField("String", "appSecret", keystoreProperties['appSecret'])
+            externalNativeBuild {
+                cmake {
+                    cppFlags += "-DRELEASE_MODE=0"
+                    cppFlags += "-DLOG_ENABLE=1"
+                }
+            }
         }
         release {
             resValue "string", "app_name", "王者之路"
@@ -50,12 +63,27 @@ android {
 
             buildConfigField("String", "appId", keystoreProperties['appId'])
             buildConfigField("String", "appSecret", keystoreProperties['appSecret'])
+
+            externalNativeBuild {
+                cmake {
+                    cppFlags += "-DRELEASE_MODE=1"
+                    cppFlags += "-DLOG_ENABLE=0"
+//                    cFlags += "-DRELEASE_MODE=0"
+//                    cFlags +="-DLOG_TAG=\"nativeLog\""
+//                    cppFlags +="-DLOG_TAG=\"nativeCLog\""
+                }
+            }
         }
     }
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileOptions {
         targetCompatibility rootProject.ext.targetCompatibility
         sourceCompatibility rootProject.ext.sourceCompatibility
+    }
+    externalNativeBuild {
+        cmake {
+            path 'CMakeLists.txt'
+        }
     }
 }
 
