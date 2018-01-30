@@ -91,4 +91,6 @@ public class Define {
     public interface IEventListener {
         void handleEvent(EventCode eventCode, CallBackMsg callBackMsg);
     }
+
+    public static IAppConfig appConfig;
 }

@@ -14,6 +14,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import easyjs.com.easyjs.droidcommon.screencapture.ScreenCapture;
+import easyjs.com.easyjs.droidcommon.util.AndroidUtil;
+
+import static easyjs.com.easyjs.droidcommon.Define.appConfig;
 
 /**
  * Created by faith on 2018/1/18.
@@ -22,7 +25,6 @@ import easyjs.com.easyjs.droidcommon.screencapture.ScreenCapture;
 public abstract class BaseActivity extends Activity {
 
     protected Context context;
-
     protected Map<Integer, Define.IEventListener> callbacks = new HashMap<>();
 
     protected abstract String getTAG();
@@ -30,6 +32,22 @@ public abstract class BaseActivity extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = this;
+        //        ProxyService.getInstance().installCert(this, false);
+        if (AndroidUtil.checkAndExit(context)) {
+            finish();
+        }
+//        Toast.makeText(EasyJsActivity.this, App.getApp().getUtil().getSignature(), Toast.LENGTH_SHORT).show();
+        if (!check()) {
+            finish();
+        }
+    }
+
+    public boolean check() {
+        if (BuildConfig.DEBUG == false && !appConfig.getAppSignature().equals(AndroidUtil.getSignature(context))) {
+            AndroidUtil.exitProcess();
+            return false;
+        }
+        return true;
     }
 
     public void registerCallback(Integer code, Define.IEventListener callback) {

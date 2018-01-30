@@ -9,6 +9,7 @@ import com.tencent.tinker.loader.app.ApplicationLike;
 import com.tinkerpatch.sdk.TinkerPatch;
 import com.tinkerpatch.sdk.loader.TinkerPatchApplicationLike;
 
+import abc.abc.abc.AdManager;
 import easyjs.com.easyjs.droidcommon.util.AndroidUtil;
 
 /**
@@ -41,6 +42,7 @@ public class App extends Application {
         easyJs = EasyJs.getIntance(this);
         util = easyJs.getAppUtils();
         initTinkerPatch();
+        initAds();
     }
 
     @Override
@@ -50,30 +52,36 @@ public class App extends Application {
         MultiDex.install(base);
     }
 
+    private void initAds() {
+        if (BuildConfig.ADS_ENABLE) {
+            AdManager.getInstance(this).init(BuildConfig.appId, BuildConfig.appSecret, true);
+        }
+    }
+
     /**
      * 我们需要确保至少对主进程跟patch进程初始化 TinkerPatch
      */
     private void initTinkerPatch() {
         // 我们可以从这里获得Tinker加载过程的信息
-//        if (BuildConfig.TINKER_ENABLE) {
-        tinkerApplicationLike = TinkerPatchApplicationLike.getTinkerPatchApplicationLike();
-        // 初始化TinkerPatch SDK
-        TinkerPatch.init(
-                tinkerApplicationLike
+        if (BuildConfig.TINKER_ENABLE) {
+            tinkerApplicationLike = TinkerPatchApplicationLike.getTinkerPatchApplicationLike();
+            // 初始化TinkerPatch SDK
+            TinkerPatch.init(
+                    tinkerApplicationLike
 //                new TinkerPatch.Builder(tinkerApplicationLike)
 //                    .requestLoader(new OkHttp3Loader())
 //                    .build()
-        )
-                .reflectPatchLibrary()
-                .setPatchRollbackOnScreenOff(true)
-                .setPatchRestartOnSrceenOff(true)
-                .setFetchPatchIntervalByHours(1);
-        // 获取当前的补丁版本
-        Log.d(TAG, "Current patch version is " + TinkerPatch.with().getPatchVersion());
+            )
+                    .reflectPatchLibrary()
+                    .setPatchRollbackOnScreenOff(true)
+                    .setPatchRestartOnSrceenOff(true)
+                    .setFetchPatchIntervalByHours(1);
+            // 获取当前的补丁版本
+            Log.d(TAG, "Current patch version is " + TinkerPatch.with().getPatchVersion());
 
-        // fetchPatchUpdateAndPollWithInterval 与 fetchPatchUpdate(false)
-        // 不同的是，会通过handler的方式去轮询
-        TinkerPatch.with().fetchPatchUpdateAndPollWithInterval();
-//        }
+            // fetchPatchUpdateAndPollWithInterval 与 fetchPatchUpdate(false)
+            // 不同的是，会通过handler的方式去轮询
+            TinkerPatch.with().fetchPatchUpdateAndPollWithInterval();
+        }
     }
 }

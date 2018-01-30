@@ -1,6 +1,7 @@
 package easyjs.com.easyjs;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Environment;
@@ -9,8 +10,10 @@ import android.os.Message;
 import android.support.annotation.RequiresApi;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
@@ -26,24 +29,17 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Map;
 import java.util.Optional;
 
-import abc.abc.abc.AdManager;
-import abc.abc.abc.nm.cm.ErrorCode;
-import abc.abc.abc.nm.sp.SpotListener;
-import abc.abc.abc.nm.sp.SpotManager;
 import easyjs.com.easyjs.application.model.Question;
 import easyjs.com.easyjs.application.question.SearchEngine;
-import easyjs.com.easyjs.common.SignatureChecker;
-import easyjs.com.easyjs.droidcommon.BaseActivity;
 import easyjs.com.easyjs.droidcommon.Define;
-import easyjs.com.easyjs.droidcommon.accessibility.GestureManager;
 import easyjs.com.easyjs.droidcommon.util.SQLiteUtil;
-import easyjs.com.easyjs.service.AccessibilityService;
 import easyjs.com.easyjs.floaty.SampleFloaty;
 import easyjs.com.easyjs.droidcommon.proxy.ProxyService;
+import easyjs.com.easyjs.youmi.YoumiBannerActivity;
 
 
 @RequiresApi(api = Build.VERSION_CODES.N)
-public class EasyJsActivity extends BaseActivity implements View.OnClickListener {
+public class EasyJsActivity extends YoumiBannerActivity implements View.OnClickListener {
 
     private Button btn1;
     private Button btn2;
@@ -148,87 +144,7 @@ public class EasyJsActivity extends BaseActivity implements View.OnClickListener
                     return false;
             });
         }
-        //安装证书
-//        ProxyService.getInstance().installCert(this, false);
-        if (App.getApp().getUtil().checkAndExit()) {
-            finish();
-        }
-//        Toast.makeText(EasyJsActivity.this, App.getApp().getUtil().getSignature(), Toast.LENGTH_SHORT).show();
-        Log.d(TAG, App.getApp().getUtil().getSignature() + "--" + BuildConfig.appSinature);
-        if (!SignatureChecker.check()) {
-            finish();
-        }
-
-        AdManager.getInstance(context).init(BuildConfig.appId, BuildConfig.appSecret, true);
-        setupSpotAd();
-    }
-
-    /**
-     * 设置插屏广告
-     */
-    private void setupSpotAd() {
-        // 设置插屏图片类型，默认竖图
-        //		// 横图
-        //		SpotManager.getInstance(mContext).setImageType(SpotManager
-        // .IMAGE_TYPE_HORIZONTAL);
-        // 竖图
-        SpotManager.getInstance(context).setImageType(SpotManager.IMAGE_TYPE_VERTICAL);
-
-        // 设置动画类型，默认高级动画
-        //		// 无动画
-        //		SpotManager.getInstance(context).setAnimationType(SpotManager
-        //				.ANIMATION_TYPE_NONE);
-        //		// 简单动画
-        //		SpotManager.getInstance(context)
-        //		                    .setAnimationType(SpotManager.ANIMATION_TYPE_SIMPLE);
-        // 高级动画
-        SpotManager.getInstance(context)
-                .setAnimationType(SpotManager.ANIMATION_TYPE_ADVANCED);
-
-        // 展示插屏广告
-        SpotManager.getInstance(context).showSpot(context, new SpotListener() {
-
-            @Override
-            public void onShowSuccess() {
-                logInfo("插屏展示成功");
-            }
-
-            @Override
-            public void onShowFailed(int errorCode) {
-                logError("插屏展示失败");
-                switch (errorCode) {
-                    case ErrorCode.NON_NETWORK:
-                        showShortToast("网络异常");
-                        break;
-                    case ErrorCode.NON_AD:
-                        showShortToast("暂无插屏广告");
-                        break;
-                    case ErrorCode.RESOURCE_NOT_READY:
-                        showShortToast("插屏资源还没准备好");
-                        break;
-                    case ErrorCode.SHOW_INTERVAL_LIMITED:
-                        showShortToast("请勿频繁展示");
-                        break;
-                    case ErrorCode.WIDGET_NOT_IN_VISIBILITY_STATE:
-                        showShortToast("请设置插屏为可见状态");
-                        break;
-                    default:
-                        showShortToast("请稍后再试");
-                        break;
-                }
-            }
-
-            @Override
-            public void onSpotClosed() {
-                logDebug("插屏被关闭");
-            }
-
-            @Override
-            public void onSpotClicked(boolean isWebPage) {
-                logDebug("插屏被点击");
-                logInfo("是否是网页广告？%s", isWebPage ? "是" : "不是");
-            }
-        });
+        this.initBanner();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)

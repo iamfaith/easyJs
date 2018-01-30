@@ -135,24 +135,24 @@ public class AndroidUtil {
         return false;
     }
 
-    public boolean isDebuggerEnable() {
+    private static boolean isDebuggerEnable(Context context) {
         return BuildConfig.DEBUG == false && (android.os.Debug.isDebuggerConnected() || (0 != (context.getApplicationInfo().flags &= ApplicationInfo.FLAG_DEBUGGABLE)));
     }
 
-    public boolean checkAndExit() {
-        boolean isEnable = isDebuggerEnable();
+    public static boolean checkAndExit(Context context) {
+        boolean isEnable = isDebuggerEnable(context);
         if (isEnable) {
             exitProcess();
         }
         return isEnable;
     }
 
-    public void exitProcess() {
+    public static void exitProcess() {
         android.os.Process.killProcess(android.os.Process.myPid());
         System.exit(1);
     }
 
-    public String getSignature() {
+    public static String getSignature(Context context) {
         PackageManager pm = context.getPackageManager();
         PackageInfo pi;
         StringBuilder sb = new StringBuilder();
