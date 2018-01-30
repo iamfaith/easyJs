@@ -63,7 +63,7 @@ android {
             signingConfig signingConfigs.config
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField("String", "appSinature", rootProject.ext.appSignature)
-            buildConfigField "boolean", "ADS_ENABLE", "${adsConfig.get(enable: true)}"
+            buildConfigField "boolean", "ADS_ENABLE", "${adsConfig.enable}"
 
             buildConfigField("String", "appId", keystoreProperties['appId'])
             buildConfigField("String", "appSecret", keystoreProperties['appSecret'])
