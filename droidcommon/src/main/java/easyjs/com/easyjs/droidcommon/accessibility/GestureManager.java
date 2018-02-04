@@ -36,6 +36,7 @@ public class GestureManager {
 
     public void setScreenMetrics(ScreenMetrics screenMetrics) {
         this.screenMetrics = screenMetrics;
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)

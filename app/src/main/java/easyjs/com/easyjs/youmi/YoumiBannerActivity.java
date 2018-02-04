@@ -1,8 +1,7 @@
 package easyjs.com.easyjs.youmi;
 
 import android.app.Activity;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -43,7 +42,7 @@ public class YoumiBannerActivity extends BaseActivity {
                 .getBannerView(context, new BannerViewListener() {
                     @Override
                     public void onRequestSuccess() {
-
+                        Log.d(getTAG(), "onRequestSuccess: ");
                     }
 
                     @Override
@@ -53,7 +52,7 @@ public class YoumiBannerActivity extends BaseActivity {
 
                     @Override
                     public void onRequestFailed() {
-
+                        Log.d(getTAG(), "onRequestFailed: ");
                     }
                 });
         // 调用 Activity 的 addContentView 函数
