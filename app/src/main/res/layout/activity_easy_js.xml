@@ -44,10 +44,11 @@
             <!--android:inputType="text"-->
             <!--android:layout_width="wrap_content"-->
             <!--android:layout_height="wrap_content" />-->
-        <!--<TextView-->
-        <!--android:text="patch new"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content" />-->
+        <TextView
+        android:id="@+id/text"
+        android:text="SMS"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

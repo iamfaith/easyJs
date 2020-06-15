@@ -1,26 +1,29 @@
 apply plugin: 'com.android.application'
-apply from: 'tinkerpatch.gradle'
+//apply from: 'tinkerpatch.gradle'
 // Create a variable called keystorePropertiesFile, and initialize it to your
 // keystore.properties file, in the rootProject folder.
-def keystorePropertiesFile = rootProject.file("keystore.properties")
+//def keystorePropertiesFile = rootProject.file("keystore.properties")
 
 // Initialize a new Properties() object called keystoreProperties.
-def keystoreProperties = new Properties()
+//def keystoreProperties = new Properties()
 
 // Load your keystore.properties file into the keystoreProperties object.
-keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+//keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 def adsConfig = [enable: true]
 
 android {
-    signingConfigs {
-        config {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
-        }
-    }
+//    signingConfigs {
+//        config {
+//            keyAlias keystoreProperties['keyAlias']
+//            keyPassword keystoreProperties['keyPassword']
+//            storeFile file(keystoreProperties['storeFile'])
+//            storePassword keystoreProperties['storePassword']
+//        }
+//    }
+
+    useLibrary  'org.apache.http.legacy'
+
     compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
         multiDexEnabled true
@@ -47,8 +50,8 @@ android {
             buildConfigField("String", "appSinature", rootProject.ext.appSignature)
 
             buildConfigField "boolean", "ADS_ENABLE", "${adsConfig.enable}"
-            buildConfigField("String", "appId", keystoreProperties['appId'])
-            buildConfigField("String", "appSecret", keystoreProperties['appSecret'])
+//            buildConfigField("String", "appId", keystoreProperties['appId'])
+//            buildConfigField("String", "appSecret", keystoreProperties['appSecret'])
             externalNativeBuild {
                 cmake {
                     cppFlags += "-DRELEASE_MODE=0"
@@ -60,13 +63,13 @@ android {
             resValue "string", "app_name", "王者之路"
             minifyEnabled true
             shrinkResources true
-            signingConfig signingConfigs.config
+//            signingConfig signingConfigs.config
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField("String", "appSinature", rootProject.ext.appSignature)
             buildConfigField "boolean", "ADS_ENABLE", "${adsConfig.enable}"
 
-            buildConfigField("String", "appId", keystoreProperties['appId'])
-            buildConfigField("String", "appSecret", keystoreProperties['appSecret'])
+//            buildConfigField("String", "appId", keystoreProperties['appId'])
+//            buildConfigField("String", "appSecret", keystoreProperties['appSecret'])
 
             externalNativeBuild {
                 cmake {
@@ -114,4 +117,6 @@ dependencies {
     compile name: 'YoumiSdk_v7.5.1_2018-01-16', ext: 'aar'
     compile("com.tinkerpatch.sdk:tinkerpatch-android-sdk:1.2.2")
     compile 'com.android.support:support-v4:25.3.1'
+
+    implementation 'com.google.android.gms:play-services-auth:16.0.1'
 }

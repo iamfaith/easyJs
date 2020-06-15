@@ -14,8 +14,8 @@ import abc.abc.abc.nm.sp.SplashViewSettings;
 import abc.abc.abc.nm.sp.SpotListener;
 import abc.abc.abc.nm.sp.SpotManager;
 import abc.abc.abc.nm.sp.SpotRequestListener;
+import easyjs.com.R;
 import easyjs.com.easyjs.EasyJsActivity;
-import easyjs.com.easyjs.R;
 import easyjs.com.easyjs.droidcommon.BaseActivity;
 
 public class YoumiAdsActivity extends BaseActivity {

@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 
+import easyjs.com.BuildConfig;
 import easyjs.com.easyjs.droidcommon.Define;
 import easyjs.com.easyjs.droidcommon.IAppConfig;
 import easyjs.com.easyjs.droidcommon.util.AndroidUtil;

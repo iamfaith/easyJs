@@ -23,9 +23,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
+import easyjs.com.R;
 import easyjs.com.easyjs.App;
 import easyjs.com.easyjs.EasyJs;
-import easyjs.com.easyjs.R;
 import easyjs.com.easyjs.application.wechatjump.Hack;
 import easyjs.com.easyjs.droidcommon.BaseActivity;
 import easyjs.com.easyjs.droidcommon.accessibility.GestureManager;

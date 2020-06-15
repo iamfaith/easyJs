@@ -6,6 +6,10 @@
       <module fileurl="file://$PROJECT_DIR$/common/common.iml" filepath="$PROJECT_DIR$/common/common.iml" />
       <module fileurl="file://$PROJECT_DIR$/droidcommon/droidcommon.iml" filepath="$PROJECT_DIR$/droidcommon/droidcommon.iml" />
       <module fileurl="file://$PROJECT_DIR$/easyJs.iml" filepath="$PROJECT_DIR$/easyJs.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/easyJs-app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/easyJs-app.iml" group="easyJs/app" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/common/easyJs-common.iml" filepath="$PROJECT_DIR$/.idea/modules/common/easyJs-common.iml" group="easyJs/common" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/droidcommon/easyJs-droidcommon.iml" filepath="$PROJECT_DIR$/.idea/modules/droidcommon/easyJs-droidcommon.iml" group="easyJs/droidcommon" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/faith-easyJs.iml" filepath="$PROJECT_DIR$/.idea/modules/faith-easyJs.iml" group="easyJs" />
     </modules>
   </component>
 </project>
